@@ -1,24 +1,23 @@
 package com.taskworld.android.rxmovie.view.activity
 
+import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
+import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.taskworld.android.rxmovie.R
 import com.taskworld.android.rxmovie.presentation.presenter.SignInPresenter
 import com.taskworld.android.rxmovie.presentation.view.SignInViewAction
-import com.taskworld.android.rxmovie.util.TAG
 import com.taskworld.android.rxmovie.view.RxMovieApplication
 import fuel.util.build
-import kotlinx.android.synthetic.activity_sign_in.clearButton
-import kotlinx.android.synthetic.activity_sign_in.emailEdit
-import kotlinx.android.synthetic.activity_sign_in.passwordEdit
-import kotlinx.android.synthetic.activity_sign_in.signInButton
-import rx.subscriptions.CompositeSubscription
+
 import widget.enabled
 import widget.textChanged
 import widget.visibility
+
+import kotlinx.android.synthetic.activity_sign_in.*
+import widget.text
 
 /**
  * Created by Kittinun Vantasin on 7/10/15.
@@ -33,17 +32,30 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
 
         setContentView(R.layout.activity_sign_in)
 
-        presenter.email.bind(emailEdit.textChanged)
-        presenter.password.bind(passwordEdit.textChanged)
+        bindObservables()
 
-        signInButton.enabled.bind(presenter.signInEnabled)
-        clearButton.visibility.bind(presenter.clearVisible)
+        signInButton.setOnClickListener {
+            presenter.requestSignIn(presenter.email.value, presenter.password.value)
+
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0)
+        }
 
         clearButton.setOnClickListener {
             emailEdit.setText("")
             passwordEdit.setText("")
         }
 
+    }
+
+    fun bindObservables() {
+        presenter.email.bind(emailEdit.textChanged)
+        presenter.password.bind(passwordEdit.textChanged)
+
+        signInButton.enabled.bind(presenter.signInEnabled)
+        clearButton.visibility.bind(presenter.clearVisible)
+
+        tokenText.text.bind(presenter.token)
     }
 
     override fun onStart() {
@@ -70,14 +82,14 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
     //================================================================================
 
     override fun showSignInSuccess() {
-        Toast.makeText(this, "Success", Toast.LENGTH_SHORT)
+        Toast.makeText(this, getString(R.string.sign_in_success), Toast.LENGTH_SHORT).show()
     }
 
     override fun showSignInFailure(message: String) {
         build(AlertDialog.Builder(this)) {
-            setTitle("Error")
+            setTitle(R.string.sign_in_failure)
             setMessage(message)
-        }
+        }.create().show()
     }
 
 }

@@ -3,6 +3,7 @@ package property
 import rx.Observable
 import rx.Subscriber
 import rx.Subscription
+import rx.subjects.BehaviorSubject
 import rx.subscriptions.CompositeSubscription
 import kotlin.properties.Delegates
 
@@ -12,20 +13,17 @@ import kotlin.properties.Delegates
 
 class MutablePropertyOf<T>(init: T) : MutableProperty<T> {
 
-    override var value by Delegates.observable(init) { desc, oldValue, newValue ->
-        subscribers.forEach { subscriber -> subscriber.onNext(newValue) }
+    override var value by Delegates.observable(init) { _, __, newValue ->
+        subject.onNext(newValue)
     }
 
     override val observable: Observable<T>
-
-    private var subscribers = arrayListOf<Subscriber<in T>>()
-
-    init {
-        observable = Observable.create { s ->
-            subscribers.add(s)
-            subscribers.forEach { subscriber -> subscriber.onNext(init) }
+        get() {
+            return subject.asObservable()
         }
-    }
+
+    private val subject = BehaviorSubject.create(init)
+
 
     fun bind(observable: Observable<T>): Subscription {
         val subscription = CompositeSubscription()

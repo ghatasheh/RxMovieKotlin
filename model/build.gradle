@@ -10,5 +10,6 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
     compile parent.ext.kotlin
+    compile parent.ext.gson
 
 }

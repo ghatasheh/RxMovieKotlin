@@ -11,7 +11,10 @@ enum class TheMovieDB(val relativePath: String) : Fuel.PathStringConvertible {
     DISCOVER_MOVIE("discover/movie"),
     DISCOVER_TV("discover/tv"),
 
-    AUTHENTICATE_TOKEN("authentication/token/new");
+    AUTHENTICATE_TOKEN("authentication/token/new"),
+    VALIDATE_LOGIN("authentication/token/validate_with_login")
+
+    ;
 
     override val path = "https://api.themoviedb.org/3/$relativePath"
 
