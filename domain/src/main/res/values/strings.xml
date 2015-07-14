@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">domain</string>
+
+    <string name="movie_db_api_key">11a11c4dcdc3909ab42b09a5e531b74f</string>
+</resources>
