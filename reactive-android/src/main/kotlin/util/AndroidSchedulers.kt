@@ -17,7 +17,9 @@ import java.util.concurrent.TimeUnit
 class AndroidSchedulers(val handler: Handler) : Scheduler() {
 
     companion object {
+
         fun mainThreadScheduler() = AndroidSchedulers(Handler(Looper.getMainLooper()))
+
     }
 
     override fun createWorker() = HandlerWorker(handler)

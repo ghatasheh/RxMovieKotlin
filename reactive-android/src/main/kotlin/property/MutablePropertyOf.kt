@@ -1,7 +1,7 @@
 package property
 
+import android.util.Log
 import rx.Observable
-import rx.Subscriber
 import rx.Subscription
 import rx.subjects.BehaviorSubject
 import rx.subscriptions.CompositeSubscription
@@ -19,11 +19,10 @@ class MutablePropertyOf<T>(init: T) : MutableProperty<T> {
 
     override val observable: Observable<T>
         get() {
-            return subject.asObservable()
+            return subject
         }
 
     private val subject = BehaviorSubject.create(init)
-
 
     fun bind(observable: Observable<T>): Subscription {
         val subscription = CompositeSubscription()

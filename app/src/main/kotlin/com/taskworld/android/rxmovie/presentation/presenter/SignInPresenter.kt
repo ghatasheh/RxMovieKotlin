@@ -17,15 +17,15 @@ import util.AndroidSchedulers
 class SignInPresenter(override val view: SignInViewAction) : Presenter<SignInViewAction> {
 
     val email = MutablePropertyOf<CharSequence>("")
-    val password = MutablePropertyOf<CharSequence>("")
+    val pass = MutablePropertyOf<CharSequence>("")
 
     val token = MutablePropertyOf<CharSequence>("")
 
-    val signInEnabled = Observable.combineLatest(email.observable, password.observable) { e, p ->
+    val signInEnabled = Observable.combineLatest(email.observable, pass.observable) { e, p ->
         isValidEmailPattern(e) && isValidPassword(p)
     }
 
-    val clearVisible = Observable.combineLatest(email.observable, password.observable) { e, p ->
+    val clearVisible = Observable.combineLatest(email.observable, pass.observable) { e, p ->
         if (e.length() == 0 && p.length() == 0) View.GONE else View.VISIBLE
     }
 
@@ -39,11 +39,12 @@ class SignInPresenter(override val view: SignInViewAction) : Presenter<SignInVie
 
     }
 
-    fun requestSignIn(user: CharSequence, pass: CharSequence) {
-        build(interactor) {
-            username = user.toString()
-            password = pass.toString()
-        }.invoke().observeOn(AndroidSchedulers.mainThreadScheduler()).subscribe({ response ->
+    fun requestSignIn() {
+        val interactor = build(interactor) {
+            username = email.value.toString()
+            password = pass.value.toString()
+        }
+        interactor.invoke().observeOn(AndroidSchedulers.mainThreadScheduler()).subscribe({ response ->
             view.showSignInSuccess()
             token.value = response.requestToken
         }, { error ->

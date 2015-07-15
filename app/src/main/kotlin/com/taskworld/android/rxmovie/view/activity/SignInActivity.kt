@@ -4,20 +4,25 @@ import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.taskworld.android.rxmovie.R
 import com.taskworld.android.rxmovie.presentation.presenter.SignInPresenter
 import com.taskworld.android.rxmovie.presentation.view.SignInViewAction
+import com.taskworld.android.rxmovie.util.TAG
 import com.taskworld.android.rxmovie.view.RxMovieApplication
 import fuel.util.build
-
-import widget.enabled
-import widget.textChanged
-import widget.visibility
-
 import kotlinx.android.synthetic.activity_sign_in.*
-import widget.text
+import rx.Observable
+import util.liftObservable
+import view.click
+import view.enabled
+import view.focusChange
+import view.visibility
+import widget.*
+import kotlin.properties.Delegates
 
 /**
  * Created by Kittinun Vantasin on 7/10/15.
@@ -27,6 +32,9 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
 
     val presenter = SignInPresenter(this)
 
+    val signInButtonEnabled by Delegates.lazy { signInButton.enabled }
+    val clearButtonVisibility by Delegates.lazy { clearButton.visibility }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super<AppCompatActivity>.onCreate(savedInstanceState)
 
@@ -34,28 +42,36 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
 
         bindObservables()
 
-        signInButton.setOnClickListener {
-            presenter.requestSignIn(presenter.email.value, presenter.password.value)
-
-            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0)
-        }
-
-        clearButton.setOnClickListener {
-            emailEdit.setText("")
-            passwordEdit.setText("")
-        }
-
+        liftObservable(signInButton.click, ::handleSignInButtonClicked)
+        liftObservable(clearButton.click, ::handleClearButtonClicked)
+        liftObservable(Observable.merge(emailEdit.focusChange, passwordEdit.focusChange), ::checkFocus)
     }
 
     fun bindObservables() {
         presenter.email.bind(emailEdit.textChanged)
-        presenter.password.bind(passwordEdit.textChanged)
+        presenter.pass.bind(passwordEdit.textChanged)
 
-        signInButton.enabled.bind(presenter.signInEnabled)
-        clearButton.visibility.bind(presenter.clearVisible)
+        signInButtonEnabled.bind(presenter.signInEnabled)
+        clearButtonVisibility.bind(presenter.clearVisible)
 
         tokenText.text.bind(presenter.token)
+    }
+
+    fun handleSignInButtonClicked(_: View) {
+        presenter.requestSignIn()
+
+        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0)
+    }
+
+    fun handleClearButtonClicked(_: View) {
+        emailEdit.setText("")
+        passwordEdit.setText("")
+    }
+
+    fun checkFocus(pair: Pair<View, Boolean>) {
+        val (view, focus) = pair
+        Log.e(TAG, "view: $view, focus: $focus")
     }
 
     override fun onStart() {
