@@ -1,11 +1,11 @@
-package view
+package reactiveandroid.view
 
 import android.util.Log
 import android.view.DragEvent
 import android.view.MotionEvent
 import android.view.View
-import property.MutablePropertyOf
-import property.mutablePropertyWith
+import reactiveandroid.property.MutablePropertyOf
+import reactiveandroid.property.mutablePropertyWith
 import rx.Observable
 
 /**
@@ -47,7 +47,7 @@ val View.selected: MutablePropertyOf<Boolean>
     }
 
 //================================================================================
-// Listeners
+// Events
 //================================================================================
 
 val View.click: Observable<View>

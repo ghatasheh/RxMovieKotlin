@@ -1,4 +1,4 @@
-package property
+package reactiveandroid.property
 
 import rx.Observable
 import rx.Subscription

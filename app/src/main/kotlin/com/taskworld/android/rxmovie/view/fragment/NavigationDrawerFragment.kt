@@ -74,7 +74,7 @@ public class NavigationDrawerFragment : Fragment() {
 
         // set a custom shadow that overlays the main content when the drawer opens
         navigationDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, android.support.v4.view.GravityCompat.START)
-        // set up the drawer's list view with items and click listener
+        // set up the drawer's list reactiveandroid.view with items and click listener
 
         val actionBar = getActionBar()
         actionBar.setDisplayHomeAsUpEnabled(true)

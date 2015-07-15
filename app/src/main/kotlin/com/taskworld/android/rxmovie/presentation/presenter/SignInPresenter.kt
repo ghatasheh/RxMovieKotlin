@@ -1,14 +1,13 @@
 package com.taskworld.android.rxmovie.presentation.presenter
 
-import android.util.Log
 import android.view.View
 import com.taskworld.android.domain.SignInInteractor
-import com.taskworld.android.rxmovie.presentation.view.SignInViewAction
-import com.taskworld.android.rxmovie.util.TAG
+import com.taskworld.android.rxmovie.R
+import com.taskworld.android.rxmovie.presentation.viewaction.SignInViewAction
 import fuel.util.build
-import property.MutablePropertyOf
+import reactiveandroid.property.MutablePropertyOf
 import rx.Observable
-import util.AndroidSchedulers
+import reactiveandroid.scheduler.AndroidSchedulers
 
 /**
  * Created by Kittinun Vantasin on 7/12/15.
@@ -20,6 +19,7 @@ class SignInPresenter(override val view: SignInViewAction) : Presenter<SignInVie
     val pass = MutablePropertyOf<CharSequence>("")
 
     val token = MutablePropertyOf<CharSequence>("")
+    val tokenResource = MutablePropertyOf(R.string.empty)
 
     val signInEnabled = Observable.combineLatest(email.observable, pass.observable) { e, p ->
         isValidEmailPattern(e) && isValidPassword(p)
@@ -44,9 +44,11 @@ class SignInPresenter(override val view: SignInViewAction) : Presenter<SignInVie
             username = email.value.toString()
             password = pass.value.toString()
         }
+
         interactor.invoke().observeOn(AndroidSchedulers.mainThreadScheduler()).subscribe({ response ->
             view.showSignInSuccess()
             token.value = response.requestToken
+            tokenResource.value = R.string.movie_db_api_key
         }, { error ->
             view.showSignInFailure("username or password is not valid")
         })

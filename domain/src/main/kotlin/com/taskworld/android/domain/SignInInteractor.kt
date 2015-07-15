@@ -24,14 +24,14 @@ class SignInInteractor() : Interactor {
     override fun invoke() = authenticateToken().concatMap { validateLoginWithToken(it) }
 
     fun authenticateToken(): Observable<TokenResponse> =
-            Fuel.get(TheMovieDB.AUTHENTICATE_TOKEN).responseAsStringObservable().map { responseString ->
-                gson.fromJson(responseString, javaClass<TokenResponse>())
+            Fuel.get(TheMovieDB.AUTHENTICATE_TOKEN).responseAsStringObservable().map {
+                gson.fromJson(it, javaClass<TokenResponse>())
             }
 
     fun validateLoginWithToken(response: TokenResponse): Observable<ValidateLoginResponse> {
         val params = mapOf("username" to username, "password" to password, "request_token" to response.token)
-        return Fuel.get(TheMovieDB.VALIDATE_LOGIN, params).responseAsStringObservable().map { responseString ->
-            gson.fromJson(responseString, javaClass<ValidateLoginResponse>())
+        return Fuel.get(TheMovieDB.VALIDATE_LOGIN, params).responseAsStringObservable().map {
+            gson.fromJson(it, javaClass<ValidateLoginResponse>())
         }
     }
 

@@ -1,4 +1,4 @@
-package property
+package reactiveandroid.property
 
 import android.util.Log
 import rx.Observable
@@ -38,7 +38,7 @@ class MutablePropertyOf<T>(init: T) : MutableProperty<T> {
         return subscription
     }
 
-    fun bind(property: MutablePropertyOf<T>): Subscription {
+    fun bind(property: Property<T>): Subscription {
         val subscription = CompositeSubscription()
         subscription.add(property.observable.subscribe ({ value ->
             this.value = value

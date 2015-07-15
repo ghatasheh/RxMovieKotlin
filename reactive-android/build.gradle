@@ -33,6 +33,7 @@ dependencies {
 
     compile parent.ext.kotlin
     compile parent.ext.android_support
+    compile parent.ext.android_support_recyclerview
 
     compile parent.ext.rxjava
 

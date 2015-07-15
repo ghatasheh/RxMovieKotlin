@@ -1,4 +1,4 @@
-package util
+package reactiveandroid.util
 
 import rx.Observable
 import rx.Subscriber

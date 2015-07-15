@@ -1,26 +1,52 @@
-package widget
+package reactiveandroid.widget
 
 import android.text.Editable
 import android.text.TextWatcher
+import android.view.KeyEvent
 import android.widget.TextView
-import property.MutablePropertyOf
-import property.mutablePropertyWith
+import reactiveandroid.property.MutablePropertyOf
+import reactiveandroid.property.mutablePropertyWith
+import reactiveandroid.util.Quad
 import rx.Observable
 
 /**
  * Created by Kittinun Vantasin on 5/20/15.
  */
 
+//================================================================================
+// Properties
+//================================================================================
+
 val TextView.text: MutablePropertyOf<CharSequence>
     get() {
         return mutablePropertyWith({ getText() }, { setText(it) })
     }
 
-val TextView.textChanged: Observable<CharSequence>
+val TextView.textResource: MutablePropertyOf<Int>
     get() {
-        return Observable.create<CharSequence> { subscriber ->
+        return mutablePropertyWith({ 0 }, { if (it > 0) setText(it) })
+    }
+
+//================================================================================
+// Events
+//================================================================================
+
+val TextView.editorActions: Observable<Triple<TextView, Int, KeyEvent>>
+    get () {
+        return Observable.create { subscriber ->
+
+            setOnEditorActionListener { textView, actionId, keyEvent ->
+                subscriber.onNext(Triple(textView, actionId, keyEvent))
+                true
+            }
+        }
+    }
+
+val TextView.textChange: Observable<Quad<CharSequence, Int, Int, Int>>
+    get() {
+        return Observable.create { subscriber ->
             onTextChangeListener.onTextChanged { charSequence, start, before, count ->
-                subscriber.onNext(charSequence)
+                subscriber.onNext(Quad(charSequence, start, before, count))
             }
         }
     }

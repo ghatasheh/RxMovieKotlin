@@ -1,4 +1,4 @@
-package util
+package reactiveandroid.scheduler
 
 import android.os.Handler
 import android.os.Looper

@@ -1,4 +1,4 @@
-package com.taskworld.android.rxmovie.presentation.view
+package com.taskworld.android.rxmovie.presentation.viewaction
 
 /**
  * Created by Kittinun Vantasin on 7/12/15.

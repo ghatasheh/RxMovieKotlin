@@ -10,18 +10,21 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
 import com.taskworld.android.rxmovie.R
 import com.taskworld.android.rxmovie.presentation.presenter.SignInPresenter
-import com.taskworld.android.rxmovie.presentation.view.SignInViewAction
+import com.taskworld.android.rxmovie.presentation.viewaction.SignInViewAction
 import com.taskworld.android.rxmovie.util.TAG
 import com.taskworld.android.rxmovie.view.RxMovieApplication
 import fuel.util.build
 import kotlinx.android.synthetic.activity_sign_in.*
+import reactiveandroid.util.liftObservable
+import reactiveandroid.view.click
+import reactiveandroid.view.enabled
+import reactiveandroid.view.focusChange
+import reactiveandroid.view.visibility
+import reactiveandroid.widget.text
+import reactiveandroid.widget.textChange
+import reactiveandroid.widget.textResource
+import reactiveandroid.util.reduceQuadFirst
 import rx.Observable
-import util.liftObservable
-import view.click
-import view.enabled
-import view.focusChange
-import view.visibility
-import widget.*
 import kotlin.properties.Delegates
 
 /**
@@ -48,13 +51,13 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
     }
 
     fun bindObservables() {
-        presenter.email.bind(emailEdit.textChanged)
-        presenter.pass.bind(passwordEdit.textChanged)
+        presenter.email.bind(emailEdit.textChange.reduceQuadFirst())
+        presenter.pass.bind(passwordEdit.textChange.reduceQuadFirst())
 
         signInButtonEnabled.bind(presenter.signInEnabled)
         clearButtonVisibility.bind(presenter.clearVisible)
 
-        tokenText.text.bind(presenter.token)
+        tokenText.textResource.bind(presenter.tokenResource)
     }
 
     fun handleSignInButtonClicked(_: View) {
@@ -86,13 +89,6 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
         presenter.onStop()
     }
 
-    override fun onDestroy() {
-        super<AppCompatActivity>.onDestroy()
-
-        val watcher = RxMovieApplication.refWatcher(this)
-        watcher.watch(this)
-    }
-
     //================================================================================
     // SignInViewAction
     //================================================================================
@@ -105,6 +101,7 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
         build(AlertDialog.Builder(this)) {
             setTitle(R.string.sign_in_failure)
             setMessage(message)
+            setCancelable(true)
         }.create().show()
     }
 
