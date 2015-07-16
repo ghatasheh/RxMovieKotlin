@@ -9,3 +9,9 @@ interface Response {
     val isSuccessful: Boolean
 
 }
+
+interface ListResponse<T> : Response {
+
+    val items: List<T>
+
+}

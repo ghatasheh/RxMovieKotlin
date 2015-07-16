@@ -14,27 +14,34 @@ import rx.Observable
  * Created by Kittinun Vantasin on 7/15/15.
  */
 
-abstract class ItemListInteractor<T> : Interactor {
+interface ItemListInteractor<T> : Interactor<List<T>> {
 
-    abstract override fun invoke(): Observable<List<T>>
+    var page: Int
+
+    override fun invoke(): Observable<List<T>>
+
 }
 
-class MovieListInteractor : ItemListInteractor<Movie>() {
+class MovieListInteractor : ItemListInteractor<Movie> {
+
+    override var page: Int = 1
 
     override fun invoke(): Observable<List<Movie>> {
-        return Fuel.get(TheMovieDB.DISCOVER_MOVIE).responseAsStringObservable().map {
+        return Fuel.get(TheMovieDB.DISCOVER_MOVIE, mapOf("page" to page)).responseAsStringObservable().map {
             val response = GsonBuilder().create().fromJson(it, javaClass<DiscoverMovieResponse>())
-            response.movies
+            response.items
         }
     }
 
 }
-class TVListInteractor : ItemListInteractor<TV>() {
+class TVListInteractor : ItemListInteractor<TV> {
+
+    override var page: Int = 1
 
     override fun invoke(): Observable<List<TV>> {
-        return Fuel.get(TheMovieDB.DISCOVER_TV).responseAsStringObservable().map {
+        return Fuel.get(TheMovieDB.DISCOVER_TV, mapOf("page" to page)).responseAsStringObservable().map {
             val response = GsonBuilder().create().fromJson(it, javaClass<DiscoverTVResponse>())
-            arrayListOf(TV())
+            response.items
         }
     }
 

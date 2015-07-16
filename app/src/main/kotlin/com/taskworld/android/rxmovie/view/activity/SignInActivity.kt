@@ -33,6 +33,7 @@ import kotlin.properties.Delegates
 
 class SignInActivity : AppCompatActivity(), SignInViewAction {
 
+    //presenter
     val presenter = SignInPresenter(this)
 
     val signInButtonEnabled by Delegates.lazy { signInButton.enabled }

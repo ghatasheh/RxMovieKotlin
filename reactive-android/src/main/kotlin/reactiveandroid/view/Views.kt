@@ -32,18 +32,23 @@ val View.activated: MutablePropertyOf<Boolean>
     }
 
 val View.clickable: MutablePropertyOf<Boolean>
-    get () {
+    get() {
         return mutablePropertyWith({ isClickable() }, { setClickable(it) })
     }
 
 val View.pressed: MutablePropertyOf<Boolean>
-    get () {
+    get() {
         return mutablePropertyWith({ isPressed() }, { setPressed(it) })
     }
 
 val View.selected: MutablePropertyOf<Boolean>
-    get () {
+    get() {
         return mutablePropertyWith({ isSelected() }, { setSelected(it) })
+    }
+
+val View.alpha: MutablePropertyOf<Float>
+    get() {
+        return mutablePropertyWith({ getAlpha() }, { setAlpha(it) })
     }
 
 //================================================================================

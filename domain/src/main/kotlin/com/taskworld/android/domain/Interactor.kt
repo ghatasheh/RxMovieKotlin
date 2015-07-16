@@ -6,8 +6,8 @@ import rx.Observable
  * Created by Kittinun Vantasin on 7/13/15.
  */
 
-interface Interactor {
+interface Interactor<T> {
 
-    fun invoke(): Observable<*>
+    fun invoke(): Observable<T>
 
 }

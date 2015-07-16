@@ -6,7 +6,7 @@ package com.taskworld.android.rxmovie.presentation.presenter
 
 interface Presenter<T> {
 
-    val view: T
+    var view: T
 
     fun onCreate() {}
 

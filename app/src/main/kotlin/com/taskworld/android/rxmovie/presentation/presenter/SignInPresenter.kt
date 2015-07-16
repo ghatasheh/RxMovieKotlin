@@ -13,7 +13,10 @@ import reactiveandroid.scheduler.AndroidSchedulers
  * Created by Kittinun Vantasin on 7/12/15.
  */
 
-class SignInPresenter(override val view: SignInViewAction) : Presenter<SignInViewAction> {
+class SignInPresenter(override var view: SignInViewAction) : Presenter<SignInViewAction> {
+
+    //interactor
+    val interactor = SignInInteractor()
 
     val email = MutablePropertyOf<CharSequence>("")
     val pass = MutablePropertyOf<CharSequence>("")
@@ -28,8 +31,6 @@ class SignInPresenter(override val view: SignInViewAction) : Presenter<SignInVie
     val clearVisible = Observable.combineLatest(email.observable, pass.observable) { e, p ->
         if (e.length() == 0 && p.length() == 0) View.GONE else View.VISIBLE
     }
-
-    val interactor = SignInInteractor()
 
     override fun onStart() {
 

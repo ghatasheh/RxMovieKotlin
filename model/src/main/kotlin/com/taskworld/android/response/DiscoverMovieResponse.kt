@@ -7,11 +7,11 @@ import com.taskworld.android.model.Movie
  * Created by Kittinun Vantasin on 7/15/15.
  */
 
-data class DiscoverMovieResponse : Response {
+data class DiscoverMovieResponse(
 
-    override val isSuccessful: Boolean = true
+        override val isSuccessful: Boolean = true,
 
-    SerializedName("results")
-    val movies: List<Movie> = arrayListOf()
+        SerializedName("results")
+        override val items: List<Movie> = arrayListOf()
 
-}
+) : ListResponse<Movie>

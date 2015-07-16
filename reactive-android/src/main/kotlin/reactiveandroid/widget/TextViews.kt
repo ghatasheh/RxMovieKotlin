@@ -34,7 +34,6 @@ val TextView.textResource: MutablePropertyOf<Int>
 val TextView.editorActions: Observable<Triple<TextView, Int, KeyEvent>>
     get () {
         return Observable.create { subscriber ->
-
             setOnEditorActionListener { textView, actionId, keyEvent ->
                 subscriber.onNext(Triple(textView, actionId, keyEvent))
                 true
@@ -45,13 +44,13 @@ val TextView.editorActions: Observable<Triple<TextView, Int, KeyEvent>>
 val TextView.textChange: Observable<Quad<CharSequence, Int, Int, Int>>
     get() {
         return Observable.create { subscriber ->
-            onTextChangeListener.onTextChanged { charSequence, start, before, count ->
+            textWatcher.onTextChanged { charSequence, start, before, count ->
                 subscriber.onNext(Quad(charSequence, start, before, count))
             }
         }
     }
 
-private val TextView.onTextChangeListener: _TextView_TextWatcher
+private val TextView.textWatcher: _TextView_TextWatcher
     get() {
         val listener = _TextView_TextWatcher()
         addTextChangedListener(listener)

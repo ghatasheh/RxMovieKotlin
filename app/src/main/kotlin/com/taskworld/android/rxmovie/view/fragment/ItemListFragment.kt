@@ -1,26 +1,26 @@
 package com.taskworld.android.rxmovie.view.fragment
 
+import android.animation.Animator
 import android.app.Activity
-import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.widget.RecyclerView
-import android.support.v8.renderscript.Allocation
-import android.support.v8.renderscript.Element
-import android.support.v8.renderscript.RenderScript
-import android.support.v8.renderscript.ScriptIntrinsicBlur
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewPropertyAnimator
 import com.bumptech.glide.Glide
 import com.taskworld.android.rxmovie.R
 import com.taskworld.android.rxmovie.presentation.presenter.ItemListPresenter
 import com.taskworld.android.rxmovie.presentation.presenter.holder.ItemListViewHolderPresenter
 import com.taskworld.android.rxmovie.presentation.viewaction.ItemListViewAction
 import com.taskworld.android.rxmovie.presentation.viewaction.holder.ItemListViewHolderViewAction
+import fuel.util.build
 import kotlinx.android.synthetic.fragment_item_list.itemListRecycler
 import kotlinx.android.synthetic.recycler_item_list.view.itemListBackgroundImage
 import kotlinx.android.synthetic.recycler_item_list.view.itemListTitleText
+import reactiveandroid.scheduler.AndroidSchedulers
+import reactiveandroid.support.v7.widget.scrolled
 import reactiveandroid.util.liftObservable
 import reactiveandroid.widget.text
 import kotlin.properties.Delegates
@@ -51,6 +51,17 @@ class ItemListFragment : Fragment(), ItemListViewAction {
 
     fun setUpRecyclerView() {
         itemListRecycler.setAdapter(adapter)
+
+        itemListRecycler.scrolled.subscribe {
+
+            val visibleItemCount = itemListRecycler.manager.getChildCount()
+            val totalItemCount = itemListRecycler.manager.getItemCount()
+            val pastVisibleItems = itemListRecycler.manager.findFirstVisibleItemPosition()
+
+            if (visibleItemCount + pastVisibleItems >= totalItemCount) {
+                presenter.loadMore()
+            }
+        }
     }
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
@@ -60,7 +71,7 @@ class ItemListFragment : Fragment(), ItemListViewAction {
     }
 
     fun bindObservables() {
-        liftObservable(presenter.itemCount.observable, ::notifyAdapter)
+        liftObservable(presenter.itemCount.observable.observeOn(AndroidSchedulers.mainThreadScheduler()), ::notifyAdapter)
     }
 
     override fun onStart() {
@@ -93,30 +104,47 @@ class ItemListFragment : Fragment(), ItemListViewAction {
 
     inner class ItemListAdapter : RecyclerView.Adapter<ItemListViewHolder>() {
 
+        var lastPosition = -1
+
         override fun getItemCount(): Int = presenter.itemCount.value
 
         override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): ItemListViewHolder? {
             val v = LayoutInflater.from(parent?.getContext()).inflate(R.layout.recycler_item_list, parent, false)
             val viewHolder = ItemListViewHolder(v)
-            viewHolder.presenter.onStart()
             return viewHolder
         }
 
         override fun onBindViewHolder(holder: ItemListViewHolder, position: Int) {
-            holder.presenter.movie = presenter[position]
+            holder.presenter = presenter[position]
             holder.bindObservables()
+
+            if (position > lastPosition) {
+                holder.view.setScaleX(0.5f)
+                holder.view.setScaleY(0.5f)
+
+                build(holder.view.animate()) {
+                    scaleX(1.0f)
+                    scaleY(1.0f)
+                    setDuration(400)
+                }.start()
+
+                lastPosition = position
+            }
         }
 
         override fun onViewRecycled(holder: ItemListViewHolder) {
             holder.presenter.onStop()
         }
+
     }
 
-    inner class ItemListViewHolder(val view: View) : RecyclerView.ViewHolder(view), ItemListViewHolderViewAction {
+    class ItemListViewHolder(val view: View) : RecyclerView.ViewHolder(view), ItemListViewHolderViewAction {
 
-        val presenter = ItemListViewHolderPresenter(this)
+        var presenter: ItemListViewHolderPresenter by Delegates.notNull()
 
         fun bindObservables() {
+            presenter.view = this
+
             view.itemListTitleText.text.bind(presenter.title)
             liftObservable(presenter.image.observable, ::setBackgroundImageUrl)
         }

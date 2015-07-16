@@ -14,7 +14,7 @@ import kotlin.properties.Delegates
  * Created by Kittinun Vantasin on 7/13/15.
  */
 
-class SignInInteractor() : Interactor {
+class SignInInteractor() : Interactor<ValidateLoginResponse> {
 
     val gson = GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss zzz").create()
 

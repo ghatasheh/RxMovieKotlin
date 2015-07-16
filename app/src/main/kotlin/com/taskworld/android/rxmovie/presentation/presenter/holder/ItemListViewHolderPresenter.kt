@@ -10,18 +10,17 @@ import kotlin.properties.Delegates
  * Created by Kittinun Vantasin on 7/15/15.
  */
 
-public class ItemListViewHolderPresenter(override val view: ItemListViewHolderViewAction) : Presenter<ItemListViewHolderViewAction> {
+public class ItemListViewHolderPresenter(val model: Movie) : Presenter<ItemListViewHolderViewAction> {
 
-    var movie: Movie? = null
-        set(value) {
-            if (value == null) return
-            title = PropertyOf<CharSequence>(value.title)
-            image = PropertyOf("http://image.tmdb.org/t/p/w500${value.backdropPath}")
-            $movie = value
-        }
+    override var view: ItemListViewHolderViewAction by Delegates.notNull()
 
-    var title: PropertyOf<CharSequence> by Delegates.notNull()
-    var image: PropertyOf<String> by Delegates.notNull()
+    val image: PropertyOf<String>
+    val title: PropertyOf<CharSequence>
+
+    init {
+        title = PropertyOf<CharSequence>(model.title)
+        image = PropertyOf("http://image.tmdb.org/t/p/w500${model.backdropPath}")
+    }
 
     override fun onStart() {
     }
