@@ -39,7 +39,7 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
     val signInButtonEnabled by Delegates.lazy { signInButton.enabled }
     val clearButtonVisibility by Delegates.lazy { clearButton.visibility }
 
-    val disposable = CompositeSubscription()
+    val subscriptions = CompositeSubscription()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super<AppCompatActivity>.onCreate(savedInstanceState)
@@ -48,19 +48,19 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
 
         bindObservables()
 
-        disposable.add(liftObservable(signInButton.click, ::handleSignInButtonClicked))
-        disposable.add(liftObservable(clearButton.click, ::handleClearButtonClicked))
-        disposable.add(liftObservable(Observable.merge(emailEdit.focusChange, passwordEdit.focusChange), ::checkFocus))
+        subscriptions.add(liftObservable(signInButton.click, ::handleSignInButtonClicked))
+        subscriptions.add(liftObservable(clearButton.click, ::handleClearButtonClicked))
+        subscriptions.add(liftObservable(Observable.merge(emailEdit.focusChange, passwordEdit.focusChange), ::checkFocus))
     }
 
     fun bindObservables() {
-        disposable.add(presenter.email.bind(emailEdit.textChange.reduceQuadFirst()))
-        disposable.add(presenter.pass.bind(passwordEdit.textChange.reduceQuadFirst()))
+        subscriptions.add(presenter.email.bind(emailEdit.textChange.reduceQuadFirst()))
+        subscriptions.add(presenter.pass.bind(passwordEdit.textChange.reduceQuadFirst()))
 
-        disposable.add(signInButtonEnabled.bind(presenter.signInEnabled))
-        disposable.add(clearButtonVisibility.bind(presenter.clearVisible))
+        subscriptions.add(signInButtonEnabled.bind(presenter.signInEnabled))
+        subscriptions.add(clearButtonVisibility.bind(presenter.clearVisible))
 
-        disposable.add(tokenText.text.bind(presenter.token))
+        subscriptions.add(tokenText.text.bind(presenter.token))
     }
 
     fun handleSignInButtonClicked(_: View) {
@@ -90,7 +90,7 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
         super<AppCompatActivity>.onStop()
 
         presenter.onStop()
-        disposable.unsubscribe()
+        subscriptions.unsubscribe()
     }
 
     //================================================================================

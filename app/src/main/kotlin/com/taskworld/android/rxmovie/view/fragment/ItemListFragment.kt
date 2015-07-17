@@ -18,6 +18,7 @@ import kotlinx.android.synthetic.fragment_item_list.itemListRecycler
 import kotlinx.android.synthetic.recycler_item_list.view.itemListBackgroundImage
 import kotlinx.android.synthetic.recycler_item_list.view.itemListTitleText
 import reactiveandroid.rx.liftObservable
+import reactiveandroid.rx.plusAssign
 import reactiveandroid.support.v7.widget.scrolled
 import reactiveandroid.widget.text
 import rx.subscriptions.CompositeSubscription
@@ -35,7 +36,7 @@ class ItemListFragment : Fragment(), ItemListViewAction {
         fun newInstance(type: Int): ItemListFragment {
             val f = ItemListFragment()
             val args = Bundle()
-            args.putInt("ARG_TYPE", type)
+            args.putInt(argument_type, type)
             f.setArguments(args)
             return f
         }
@@ -54,7 +55,7 @@ class ItemListFragment : Fragment(), ItemListViewAction {
 
     var onFragmentAttached: (() -> Unit)? = null
 
-    val disposable = CompositeSubscription()
+    val subscriptions = CompositeSubscription()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super<Fragment>.onCreate(savedInstanceState)
@@ -98,7 +99,7 @@ class ItemListFragment : Fragment(), ItemListViewAction {
     }
 
     fun bindObservables() {
-        disposable.add(liftObservable(presenter.itemCount.observable, ::notifyAdapter))
+        subscriptions += liftObservable(presenter.itemCount.observable, ::notifyAdapter)
     }
 
     override fun onStart() {
@@ -111,6 +112,7 @@ class ItemListFragment : Fragment(), ItemListViewAction {
         super<Fragment>.onStop()
 
         presenter.onStop()
+        subscriptions.unsubscribe()
     }
 
     override fun onAttach(activity: Activity?) {
@@ -164,6 +166,7 @@ class ItemListFragment : Fragment(), ItemListViewAction {
 
         override fun onViewRecycled(holder: ItemListViewHolder) {
             holder.presenter.onStop()
+            holder.unbind()
         }
 
     }
@@ -172,9 +175,15 @@ class ItemListFragment : Fragment(), ItemListViewAction {
 
         var presenter: ItemListViewHolderPresenter by Delegates.notNull()
 
+        val subscriptions = CompositeSubscription()
+
         fun bindObservables() {
             itemView.itemListTitleText.text.bind(presenter.title)
-            liftObservable(presenter.image.observable, ::setBackgroundImageUrl)
+            subscriptions += liftObservable(presenter.image.observable, ::setBackgroundImageUrl)
+        }
+
+        fun unbind() {
+            subscriptions.unsubscribe()
         }
 
         fun setBackgroundImageUrl(url: String) {

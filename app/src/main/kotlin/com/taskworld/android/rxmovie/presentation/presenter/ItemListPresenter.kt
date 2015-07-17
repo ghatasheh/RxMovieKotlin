@@ -13,8 +13,10 @@ import com.taskworld.android.rxmovie.view.fragment.ItemListFragment
 import fuel.util.build
 import reactiveandroid.property.MutablePropertyOf
 import reactiveandroid.rx.liftObservable
+import reactiveandroid.rx.plusAssign
 import reactiveandroid.scheduler.AndroidSchedulers
 import rx.Observable
+import rx.subscriptions.CompositeSubscription
 import kotlin.properties.Delegates
 
 /**
@@ -35,21 +37,23 @@ class ItemListPresenter(override var view: ItemListViewAction) : ListPresenter<I
     var isLoading = false
     var pageNumber = 1
 
+    val subscriptions = CompositeSubscription()
+
     override fun onStart() {
-        liftObservable(listViewHolderObservable(), ::updateItems)
+        subscriptions += liftObservable(listViewHolderObservable(), ::updateItems)
     }
 
     override fun onStop() {
+        subscriptions.unsubscribe()
     }
 
     fun loadMore() {
         if (isLoading) return
 
-        build(interactor) {
-            page = (pageNumber + 1)
-        }
+        isLoading = true
 
-        liftObservable(listViewHolderObservable(), ::updateItems)
+        pageNumber++
+        subscriptions += liftObservable(listViewHolderObservable(), ::updateItems)
     }
 
     fun listViewHolderObservable(): Observable<List<ItemListViewHolderPresenter>> {
@@ -57,10 +61,12 @@ class ItemListPresenter(override var view: ItemListViewAction) : ListPresenter<I
         when (type) {
             ItemListFragment.Type.Movie -> {
                 interactor = MovieListInteractor()
+                interactor.page = pageNumber
                 construct = { (it as Movie).itemListPresentable }
             }
             ItemListFragment.Type.TV -> {
                 interactor = TVListInteractor()
+                interactor.page = pageNumber
                 construct = { (it as TV).itemListPresentable }
             }
         }
@@ -71,6 +77,7 @@ class ItemListPresenter(override var view: ItemListViewAction) : ListPresenter<I
     }
 
     fun updateItems(presenters: List<ItemListViewHolderPresenter>) {
+        isLoading = false
         items.value.addAll(presenters)
         itemCount.value = items.value.size()
     }
