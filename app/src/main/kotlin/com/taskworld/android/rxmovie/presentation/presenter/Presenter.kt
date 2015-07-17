@@ -10,13 +10,6 @@ interface Presenter<T> {
 
     var view: T
 
-    fun onCreate() {}
-
-    fun onStart()
-    fun onStop()
-
-    fun onDestroy() {}
-
 }
 
 interface ListPresenter<T> : Presenter<T> {

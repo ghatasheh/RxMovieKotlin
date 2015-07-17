@@ -58,7 +58,7 @@ val View.alpha: MutablePropertyOf<Float>
 val View.click: Observable<View>
     get () {
         return Observable.create { subscriber ->
-            if (hasOnClickListeners()) Log.w("Reactive-Android", "View.click hijacks control's on click listener")
+            if (hasOnClickListeners()) setOnClickListener(null)
 
             setOnClickListener {
                 subscriber.onNext(it)
@@ -69,7 +69,7 @@ val View.click: Observable<View>
 val View.focusChange: Observable<Pair<View, Boolean>>
     get () {
         return Observable.create { subscriber ->
-            if (getOnFocusChangeListener() != null) Log.w("Reactive-Android", "View.focusChange hijacks control's on focus listener")
+            if (getOnFocusChangeListener() != null) setOnClickListener(null)
 
             setOnFocusChangeListener { view, hasFocus ->
                 subscriber.onNext(view to hasFocus)

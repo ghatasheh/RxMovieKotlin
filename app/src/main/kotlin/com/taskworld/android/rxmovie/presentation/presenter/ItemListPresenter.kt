@@ -1,16 +1,18 @@
 package com.taskworld.android.rxmovie.presentation.presenter
 
+import android.util.Log
 import com.taskworld.android.domain.ItemListInteractor
 import com.taskworld.android.domain.MovieListInteractor
 import com.taskworld.android.domain.TVListInteractor
 import com.taskworld.android.model.Movie
 import com.taskworld.android.model.TV
+import com.taskworld.android.rxmovie.presentation.presenter.base.ReactivePresenter
 import com.taskworld.android.rxmovie.presentation.presenter.holder.ItemListPresentable
 import com.taskworld.android.rxmovie.presentation.presenter.holder.ItemListViewHolderPresenter
 import com.taskworld.android.rxmovie.presentation.presenter.holder.itemListPresentable
 import com.taskworld.android.rxmovie.presentation.viewaction.ItemListViewAction
+import com.taskworld.android.rxmovie.util.TAG
 import com.taskworld.android.rxmovie.view.fragment.ItemListFragment
-import fuel.util.build
 import reactiveandroid.property.MutablePropertyOf
 import reactiveandroid.rx.liftObservable
 import reactiveandroid.rx.plusAssign
@@ -23,7 +25,7 @@ import kotlin.properties.Delegates
  * Created by Kittinun Vantasin on 7/15/15.
  */
 
-class ItemListPresenter(override var view: ItemListViewAction) : ListPresenter<ItemListViewAction> {
+class ItemListPresenter(override var view: ItemListViewAction) : ReactivePresenter(), ListPresenter<ItemListViewAction> {
 
     //interactor
     var interactor: ItemListInteractor<*> by Delegates.notNull()
@@ -39,12 +41,14 @@ class ItemListPresenter(override var view: ItemListViewAction) : ListPresenter<I
 
     val subscriptions = CompositeSubscription()
 
-    override fun onStart() {
-        subscriptions += liftObservable(listViewHolderObservable(), ::updateItems)
-    }
+    init {
+        becomeActive.subscribe {
+            subscriptions += liftObservable(listViewHolderObservable(), ::updateItems)
+        }
 
-    override fun onStop() {
-        subscriptions.unsubscribe()
+        becomeInactive.subscribe {
+            subscriptions.unsubscribe()
+        }
     }
 
     fun loadMore() {

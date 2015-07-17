@@ -2,18 +2,18 @@ package com.taskworld.android.rxmovie.presentation.presenter
 
 import android.view.View
 import com.taskworld.android.domain.SignInInteractor
-import com.taskworld.android.rxmovie.R
+import com.taskworld.android.rxmovie.presentation.presenter.base.ReactivePresenter
 import com.taskworld.android.rxmovie.presentation.viewaction.SignInViewAction
 import fuel.util.build
 import reactiveandroid.property.MutablePropertyOf
-import rx.Observable
 import reactiveandroid.scheduler.AndroidSchedulers
+import rx.Observable
 
 /**
  * Created by Kittinun Vantasin on 7/12/15.
  */
 
-class SignInPresenter(override var view: SignInViewAction) : Presenter<SignInViewAction> {
+class SignInPresenter(override var view: SignInViewAction) : ReactivePresenter(), Presenter<SignInViewAction> {
 
     //interactor
     val interactor = SignInInteractor()
@@ -29,14 +29,6 @@ class SignInPresenter(override var view: SignInViewAction) : Presenter<SignInVie
 
     val clearVisible = Observable.combineLatest(email.observable, pass.observable) { e, p ->
         if (e.length() == 0 && p.length() == 0) View.GONE else View.VISIBLE
-    }
-
-    override fun onStart() {
-
-    }
-
-    override fun onStop() {
-
     }
 
     fun requestSignIn() {

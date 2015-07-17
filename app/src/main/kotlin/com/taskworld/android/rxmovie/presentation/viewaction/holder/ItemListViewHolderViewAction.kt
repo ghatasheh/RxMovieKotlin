@@ -6,5 +6,7 @@ package com.taskworld.android.rxmovie.presentation.viewaction.holder
 
 interface ItemListViewHolderViewAction {
 
+    fun navigateToItemDetail(id: String)
+
 }
  

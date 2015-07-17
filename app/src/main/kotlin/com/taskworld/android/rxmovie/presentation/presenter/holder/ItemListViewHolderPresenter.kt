@@ -1,10 +1,13 @@
 package com.taskworld.android.rxmovie.presentation.presenter.holder
 
+import android.view.View
 import com.taskworld.android.model.Movie
 import com.taskworld.android.model.TV
 import com.taskworld.android.rxmovie.presentation.presenter.Presenter
+import com.taskworld.android.rxmovie.presentation.presenter.base.ReactivePresenter
 import com.taskworld.android.rxmovie.presentation.viewaction.holder.ItemListViewHolderViewAction
 import reactiveandroid.property.PropertyOf
+import rx.Observable
 import kotlin.properties.Delegates
 
 /**
@@ -35,28 +38,30 @@ val TV.itemListPresentable: ItemListPresentable
         return object : ItemListPresentable {
 
             override val title = tv.name
-            override val image = tv.posterPath
+            override val image = tv.backdropPath
 
         }
     }
 
 
-public class ItemListViewHolderPresenter(val presentable: ItemListPresentable) : Presenter<ItemListViewHolderViewAction> {
+public class ItemListViewHolderPresenter(val presentable: ItemListPresentable) : ReactivePresenter(), Presenter<ItemListViewHolderViewAction> {
 
     override var view: ItemListViewHolderViewAction by Delegates.notNull()
 
     val image: PropertyOf<String>
     val title: PropertyOf<CharSequence>
 
+    var click: Observable<View> by Delegates.notNull()
+
     init {
         title = PropertyOf<CharSequence>(presentable.title)
         image = PropertyOf("http://image.tmdb.org/t/p/w500${presentable.image}")
-    }
 
-    override fun onStart() {
-    }
+        becomeActive.subscribe {
+            click.subscribe { view.navigateToItemDetail(presentable.title) }
+        }
 
-    override fun onStop() {
     }
 
 }
+

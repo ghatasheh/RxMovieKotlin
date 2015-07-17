@@ -7,6 +7,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import com.bumptech.glide.Glide
 import com.taskworld.android.rxmovie.R
 import com.taskworld.android.rxmovie.presentation.presenter.ItemListPresenter
@@ -20,6 +21,7 @@ import kotlinx.android.synthetic.recycler_item_list.view.itemListTitleText
 import reactiveandroid.rx.liftObservable
 import reactiveandroid.rx.plusAssign
 import reactiveandroid.support.v7.widget.scrolled
+import reactiveandroid.view.click
 import reactiveandroid.widget.text
 import rx.subscriptions.CompositeSubscription
 import kotlin.properties.Delegates
@@ -63,8 +65,6 @@ class ItemListFragment : Fragment(), ItemListViewAction {
         //set type
         val type = Type.values()[getArguments().getInt(argument_type, 0)]
         presenter.type = type
-
-        onFragmentAttached?.invoke()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) =
@@ -104,15 +104,14 @@ class ItemListFragment : Fragment(), ItemListViewAction {
 
     override fun onStart() {
         super<Fragment>.onStart()
-
-        presenter.onStart()
+        presenter.active = true
     }
 
     override fun onStop() {
         super<Fragment>.onStop()
 
-        presenter.onStop()
         subscriptions.unsubscribe()
+        presenter.active = false
     }
 
     override fun onAttach(activity: Activity?) {
@@ -148,6 +147,7 @@ class ItemListFragment : Fragment(), ItemListViewAction {
             itemListPresenter.view = holder
             holder.presenter = itemListPresenter
             holder.bindObservables()
+            holder.presenter.active = true
 
             if (position > lastPosition) {
                 val view = holder.itemView
@@ -165,7 +165,7 @@ class ItemListFragment : Fragment(), ItemListViewAction {
         }
 
         override fun onViewRecycled(holder: ItemListViewHolder) {
-            holder.presenter.onStop()
+            holder.presenter.active = false
             holder.unbind()
         }
 
@@ -179,7 +179,9 @@ class ItemListFragment : Fragment(), ItemListViewAction {
 
         fun bindObservables() {
             itemView.itemListTitleText.text.bind(presenter.title)
+
             subscriptions += liftObservable(presenter.image.observable, ::setBackgroundImageUrl)
+            presenter.click = itemView.click
         }
 
         fun unbind() {
@@ -190,7 +192,12 @@ class ItemListFragment : Fragment(), ItemListViewAction {
             Glide.with(itemView.getContext()).load(url).crossFade().into(itemView.itemListBackgroundImage)
         }
 
+        override fun navigateToItemDetail(id: String) {
+            Toast.makeText(itemView.getContext(), id, Toast.LENGTH_SHORT).show()
+        }
+
     }
+
 }
 
 

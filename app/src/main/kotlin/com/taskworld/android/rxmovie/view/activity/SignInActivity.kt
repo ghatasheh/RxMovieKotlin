@@ -82,15 +82,13 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
 
     override fun onStart() {
         super<AppCompatActivity>.onStart()
-
-        presenter.onStart()
+        presenter.active = true
     }
 
     override fun onStop() {
         super<AppCompatActivity>.onStop()
-
-        presenter.onStop()
         subscriptions.unsubscribe()
+        presenter.active = false
     }
 
     //================================================================================
