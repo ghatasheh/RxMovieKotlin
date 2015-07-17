@@ -46,7 +46,13 @@ public class MainActivity : AppCompatActivity() {
 
             val fragment = ItemListFragment.newInstance(position)
             build(fragment) {
-                onFragmentAttached = { titleText = getString(it) }
+                val titleRes = when(position) {
+                    0 -> R.string.title_section1
+                    1 -> R.string.title_section2
+                    2 -> R.string.title_section3
+                    else -> throw IllegalStateException("Error unknown number of section")
+                }
+                onFragmentAttached = { titleText = getString(titleRes) }
             }
 
             getSupportFragmentManager().beginTransaction().replace(R.id.container, fragment).commit()

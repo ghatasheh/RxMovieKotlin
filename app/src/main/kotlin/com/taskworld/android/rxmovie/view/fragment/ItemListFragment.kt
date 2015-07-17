@@ -52,9 +52,19 @@ class ItemListFragment : Fragment(), ItemListViewAction {
     //adapter
     val adapter = ItemListAdapter()
 
-    var onFragmentAttached: ((Int) -> Unit)? = null
+    var onFragmentAttached: (() -> Unit)? = null
 
     val disposable = CompositeSubscription()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super<Fragment>.onCreate(savedInstanceState)
+
+        //set type
+        val type = Type.values()[getArguments().getInt(argument_type, 0)]
+        presenter.type = type
+
+        onFragmentAttached?.invoke()
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) =
             inflater.inflate(R.layout.fragment_item_list, container, false)
@@ -84,9 +94,6 @@ class ItemListFragment : Fragment(), ItemListViewAction {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super<Fragment>.onActivityCreated(savedInstanceState)
 
-        //set type
-        presenter.type = Type.values()[getArguments().getInt(argument_type, 0)]
-
         bindObservables()
     }
 
@@ -109,13 +116,7 @@ class ItemListFragment : Fragment(), ItemListViewAction {
     override fun onAttach(activity: Activity?) {
         super<Fragment>.onAttach(activity)
 
-        val stringRes = 0
-        when (presenter.type) {
-            Type.Movie -> R.string.title_section1
-            Type.TV -> R.string.title_section2
-        }
-
-        onFragmentAttached?.invoke(stringRes)
+        onFragmentAttached?.invoke()
     }
 
     override fun onDetach() {

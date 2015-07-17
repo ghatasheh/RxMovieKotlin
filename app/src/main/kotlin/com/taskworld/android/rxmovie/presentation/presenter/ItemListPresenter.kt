@@ -21,7 +21,7 @@ import kotlin.properties.Delegates
  * Created by Kittinun Vantasin on 7/15/15.
  */
 
-class ItemListPresenter(override var view: ItemListViewAction) : Presenter<ItemListViewAction> {
+class ItemListPresenter(override var view: ItemListViewAction) : ListPresenter<ItemListViewAction> {
 
     //interactor
     var interactor: ItemListInteractor<*> by Delegates.notNull()
@@ -29,7 +29,7 @@ class ItemListPresenter(override var view: ItemListViewAction) : Presenter<ItemL
     var type: ItemListFragment.Type by Delegates.notNull()
 
     //data
-    val itemCount = MutablePropertyOf(0)
+    override val itemCount = MutablePropertyOf(0)
     val items = MutablePropertyOf(arrayListOf<ItemListViewHolderPresenter>())
 
     var isLoading = false
