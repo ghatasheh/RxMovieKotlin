@@ -29,6 +29,23 @@ import kotlin.properties.Delegates
 
 class ItemListFragment : Fragment(), ItemListViewAction {
 
+    companion object {
+        val argument_type = "ARG_TYPE"
+
+        fun newInstance(type: Int): ItemListFragment {
+            val f = ItemListFragment()
+            val args = Bundle()
+            args.putInt("ARG_TYPE", type)
+            f.setArguments(args)
+            return f
+        }
+    }
+
+    enum class Type(value: Int) {
+        Movie(0),
+        TV(1)
+    }
+
     //presenter
     val presenter = ItemListPresenter(this)
 
@@ -67,6 +84,9 @@ class ItemListFragment : Fragment(), ItemListViewAction {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super<Fragment>.onActivityCreated(savedInstanceState)
 
+        //set type
+        presenter.type = Type.values()[getArguments().getInt(argument_type, 0)]
+
         bindObservables()
     }
 
@@ -89,7 +109,13 @@ class ItemListFragment : Fragment(), ItemListViewAction {
     override fun onAttach(activity: Activity?) {
         super<Fragment>.onAttach(activity)
 
-        onFragmentAttached?.invoke(R.string.title_section1)
+        val stringRes = 0
+        when (presenter.type) {
+            Type.Movie -> R.string.title_section1
+            Type.TV -> R.string.title_section2
+        }
+
+        onFragmentAttached?.invoke(stringRes)
     }
 
     override fun onDetach() {

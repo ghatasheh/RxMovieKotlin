@@ -44,7 +44,7 @@ public class MainActivity : AppCompatActivity() {
         // Set up hooks
         mainNavigationDrawerFragment.onDrawerItemSelected = { position ->
 
-            val fragment = ItemListFragment()
+            val fragment = ItemListFragment.newInstance(position)
             build(fragment) {
                 onFragmentAttached = { titleText = getString(it) }
             }
