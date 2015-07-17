@@ -6,7 +6,7 @@ import android.view.KeyEvent
 import android.widget.TextView
 import reactiveandroid.property.MutablePropertyOf
 import reactiveandroid.property.mutablePropertyWith
-import reactiveandroid.util.Quad
+import reactiveandroid.rx.Quad
 import rx.Observable
 
 /**

@@ -9,6 +9,7 @@ import rx.internal.schedulers.ScheduledAction
 import rx.subscriptions.CompositeSubscription
 import rx.subscriptions.Subscriptions
 import java.util.concurrent.TimeUnit
+import kotlin.properties.Delegates
 
 /**
  * Created by Kittinun Vantasin on 7/14/15.
@@ -18,7 +19,9 @@ class AndroidSchedulers(val handler: Handler) : Scheduler() {
 
     companion object {
 
-        fun mainThreadScheduler() = AndroidSchedulers(Handler(Looper.getMainLooper()))
+        val scheduler by Delegates.lazy { AndroidSchedulers(Handler(Looper.getMainLooper())) }
+
+        fun mainThreadScheduler() = scheduler
 
     }
 

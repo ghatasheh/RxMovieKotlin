@@ -1,4 +1,4 @@
-package reactiveandroid.util
+package reactiveandroid.rx
 
 import java.io.Serializable
 

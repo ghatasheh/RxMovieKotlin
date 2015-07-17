@@ -1,6 +1,5 @@
 package com.taskworld.android.rxmovie.view.fragment
 
-import android.animation.Animator
 import android.app.Activity
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -8,7 +7,6 @@ import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewPropertyAnimator
 import com.bumptech.glide.Glide
 import com.taskworld.android.rxmovie.R
 import com.taskworld.android.rxmovie.presentation.presenter.ItemListPresenter
@@ -19,10 +17,10 @@ import fuel.util.build
 import kotlinx.android.synthetic.fragment_item_list.itemListRecycler
 import kotlinx.android.synthetic.recycler_item_list.view.itemListBackgroundImage
 import kotlinx.android.synthetic.recycler_item_list.view.itemListTitleText
-import reactiveandroid.scheduler.AndroidSchedulers
+import reactiveandroid.rx.liftObservable
 import reactiveandroid.support.v7.widget.scrolled
-import reactiveandroid.util.liftObservable
 import reactiveandroid.widget.text
+import rx.subscriptions.CompositeSubscription
 import kotlin.properties.Delegates
 
 /**
@@ -38,6 +36,8 @@ class ItemListFragment : Fragment(), ItemListViewAction {
     val adapter = ItemListAdapter()
 
     var onFragmentAttached: ((Int) -> Unit)? = null
+
+    val disposable = CompositeSubscription()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) =
             inflater.inflate(R.layout.fragment_item_list, container, false)
@@ -71,7 +71,7 @@ class ItemListFragment : Fragment(), ItemListViewAction {
     }
 
     fun bindObservables() {
-        liftObservable(presenter.itemCount.observable.observeOn(AndroidSchedulers.mainThreadScheduler()), ::notifyAdapter)
+        disposable.add(liftObservable(presenter.itemCount.observable, ::notifyAdapter))
     }
 
     override fun onStart() {
@@ -115,14 +115,17 @@ class ItemListFragment : Fragment(), ItemListViewAction {
         }
 
         override fun onBindViewHolder(holder: ItemListViewHolder, position: Int) {
-            holder.presenter = presenter[position]
+            val itemListPresenter = presenter[position]
+            itemListPresenter.view = holder
+            holder.presenter = itemListPresenter
             holder.bindObservables()
 
             if (position > lastPosition) {
-                holder.view.setScaleX(0.5f)
-                holder.view.setScaleY(0.5f)
+                val view = holder.itemView
+                view.setScaleX(0.5f)
+                view.setScaleY(0.5f)
 
-                build(holder.view.animate()) {
+                build(view.animate()) {
                     scaleX(1.0f)
                     scaleY(1.0f)
                     setDuration(400)
@@ -138,19 +141,17 @@ class ItemListFragment : Fragment(), ItemListViewAction {
 
     }
 
-    class ItemListViewHolder(val view: View) : RecyclerView.ViewHolder(view), ItemListViewHolderViewAction {
+    class ItemListViewHolder(view: View) : RecyclerView.ViewHolder(view), ItemListViewHolderViewAction {
 
         var presenter: ItemListViewHolderPresenter by Delegates.notNull()
 
         fun bindObservables() {
-            presenter.view = this
-
-            view.itemListTitleText.text.bind(presenter.title)
+            itemView.itemListTitleText.text.bind(presenter.title)
             liftObservable(presenter.image.observable, ::setBackgroundImageUrl)
         }
 
         fun setBackgroundImageUrl(url: String) {
-            Glide.with(view.getContext()).load(url).crossFade().into(view.itemListBackgroundImage)
+            Glide.with(itemView.getContext()).load(url).crossFade().into(itemView.itemListBackgroundImage)
         }
 
     }

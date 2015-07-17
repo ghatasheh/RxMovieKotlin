@@ -22,7 +22,6 @@ class SignInPresenter(override var view: SignInViewAction) : Presenter<SignInVie
     val pass = MutablePropertyOf<CharSequence>("")
 
     val token = MutablePropertyOf<CharSequence>("")
-    val tokenResource = MutablePropertyOf(R.string.empty)
 
     val signInEnabled = Observable.combineLatest(email.observable, pass.observable) { e, p ->
         isValidEmailPattern(e) && isValidPassword(p)
@@ -49,7 +48,6 @@ class SignInPresenter(override var view: SignInViewAction) : Presenter<SignInVie
         interactor.invoke().observeOn(AndroidSchedulers.mainThreadScheduler()).subscribe({ response ->
             view.showSignInSuccess()
             token.value = response.requestToken
-            tokenResource.value = R.string.movie_db_api_key
         }, { error ->
             view.showSignInFailure("username or password is not valid")
         })

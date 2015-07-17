@@ -1,12 +1,12 @@
 package com.taskworld.android.rxmovie.presentation.presenter
 
 import com.taskworld.android.domain.MovieListInteractor
-import com.taskworld.android.model.Movie
 import com.taskworld.android.rxmovie.presentation.presenter.holder.ItemListViewHolderPresenter
 import com.taskworld.android.rxmovie.presentation.viewaction.ItemListViewAction
 import fuel.util.build
 import reactiveandroid.property.MutablePropertyOf
-import reactiveandroid.util.liftObservable
+import reactiveandroid.rx.liftObservable
+import reactiveandroid.scheduler.AndroidSchedulers
 import rx.Observable
 
 /**
@@ -43,7 +43,7 @@ class ItemListPresenter(override var view: ItemListViewAction) : Presenter<ItemL
     }
 
     fun listViewHolderObservable(): Observable<List<ItemListViewHolderPresenter>> {
-        return interactor.invoke().map { list ->
+        return interactor.invoke().observeOn(AndroidSchedulers.mainThreadScheduler()).map { list ->
             list.map { ItemListViewHolderPresenter(it) }
         }
     }

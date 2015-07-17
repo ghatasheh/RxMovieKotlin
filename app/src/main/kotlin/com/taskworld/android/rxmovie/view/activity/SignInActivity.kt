@@ -12,10 +12,10 @@ import com.taskworld.android.rxmovie.R
 import com.taskworld.android.rxmovie.presentation.presenter.SignInPresenter
 import com.taskworld.android.rxmovie.presentation.viewaction.SignInViewAction
 import com.taskworld.android.rxmovie.util.TAG
-import com.taskworld.android.rxmovie.view.RxMovieApplication
 import fuel.util.build
 import kotlinx.android.synthetic.activity_sign_in.*
-import reactiveandroid.util.liftObservable
+import reactiveandroid.rx.liftObservable
+import reactiveandroid.rx.reduceQuadFirst
 import reactiveandroid.view.click
 import reactiveandroid.view.enabled
 import reactiveandroid.view.focusChange
@@ -23,8 +23,8 @@ import reactiveandroid.view.visibility
 import reactiveandroid.widget.text
 import reactiveandroid.widget.textChange
 import reactiveandroid.widget.textResource
-import reactiveandroid.util.reduceQuadFirst
 import rx.Observable
+import rx.subscriptions.CompositeSubscription
 import kotlin.properties.Delegates
 
 /**
@@ -39,6 +39,8 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
     val signInButtonEnabled by Delegates.lazy { signInButton.enabled }
     val clearButtonVisibility by Delegates.lazy { clearButton.visibility }
 
+    val disposable = CompositeSubscription()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super<AppCompatActivity>.onCreate(savedInstanceState)
 
@@ -46,19 +48,19 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
 
         bindObservables()
 
-        liftObservable(signInButton.click, ::handleSignInButtonClicked)
-        liftObservable(clearButton.click, ::handleClearButtonClicked)
-        liftObservable(Observable.merge(emailEdit.focusChange, passwordEdit.focusChange), ::checkFocus)
+        disposable.add(liftObservable(signInButton.click, ::handleSignInButtonClicked))
+        disposable.add(liftObservable(clearButton.click, ::handleClearButtonClicked))
+        disposable.add(liftObservable(Observable.merge(emailEdit.focusChange, passwordEdit.focusChange), ::checkFocus))
     }
 
     fun bindObservables() {
-        presenter.email.bind(emailEdit.textChange.reduceQuadFirst())
-        presenter.pass.bind(passwordEdit.textChange.reduceQuadFirst())
+        disposable.add(presenter.email.bind(emailEdit.textChange.reduceQuadFirst()))
+        disposable.add(presenter.pass.bind(passwordEdit.textChange.reduceQuadFirst()))
 
-        signInButtonEnabled.bind(presenter.signInEnabled)
-        clearButtonVisibility.bind(presenter.clearVisible)
+        disposable.add(signInButtonEnabled.bind(presenter.signInEnabled))
+        disposable.add(clearButtonVisibility.bind(presenter.clearVisible))
 
-        tokenText.textResource.bind(presenter.tokenResource)
+        disposable.add(tokenText.text.bind(presenter.token))
     }
 
     fun handleSignInButtonClicked(_: View) {
@@ -88,6 +90,7 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
         super<AppCompatActivity>.onStop()
 
         presenter.onStop()
+        disposable.unsubscribe()
     }
 
     //================================================================================

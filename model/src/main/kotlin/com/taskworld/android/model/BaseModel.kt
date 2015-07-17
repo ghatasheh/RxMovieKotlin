@@ -5,5 +5,7 @@ package com.taskworld.android.model
  */
 
 abstract class BaseModel() {
+
     val id: Int = 0
+
 }
