@@ -9,11 +9,12 @@ import rx.subscriptions.CompositeSubscription
  * Created by Kittinun Vantasin on 7/14/15.
  */
 
-fun <T, U> U.liftObservable(o: Observable<T>, onNext: U.(T) -> Unit): Subscription {
+fun <T, U> Observable<T>.liftWith(u: U, next: U.(T) -> Unit, error: (U.(Throwable?) -> Unit)? = null): Subscription {
     val subscriptions = CompositeSubscription()
-    subscriptions += o.subscribe(object : Subscriber<T>(){
+    subscriptions += subscribe(object : Subscriber<T>() {
 
         override fun onError(e: Throwable?) {
+            if (error != null) u.error(e)
         }
 
         override fun onCompleted() {
@@ -21,7 +22,7 @@ fun <T, U> U.liftObservable(o: Observable<T>, onNext: U.(T) -> Unit): Subscripti
         }
 
         override fun onNext(t: T) {
-            onNext(t)
+            u.next(t)
         }
     })
     return subscriptions

@@ -18,7 +18,7 @@ import fuel.util.build
 import kotlinx.android.synthetic.fragment_item_list.itemListRecycler
 import kotlinx.android.synthetic.recycler_item_list.view.itemListBackgroundImage
 import kotlinx.android.synthetic.recycler_item_list.view.itemListTitleText
-import reactiveandroid.rx.liftObservable
+import reactiveandroid.rx.liftWith
 import reactiveandroid.rx.plusAssign
 import reactiveandroid.support.v7.widget.scrolled
 import reactiveandroid.view.click
@@ -99,7 +99,7 @@ class ItemListFragment : Fragment(), ItemListViewAction {
     }
 
     fun bindObservables() {
-        subscriptions += liftObservable(presenter.itemCount.observable, ::notifyAdapter)
+        subscriptions += presenter.itemCount.observable.liftWith(this, ::notifyAdapter)
     }
 
     override fun onStart() {
@@ -180,7 +180,7 @@ class ItemListFragment : Fragment(), ItemListViewAction {
         fun bindObservables() {
             itemView.itemListTitleText.text.bind(presenter.title)
 
-            subscriptions += liftObservable(presenter.image.observable, ::setBackgroundImageUrl)
+            subscriptions += presenter.image.observable.liftWith(this, ::setBackgroundImageUrl)
             presenter.click = itemView.click
         }
 

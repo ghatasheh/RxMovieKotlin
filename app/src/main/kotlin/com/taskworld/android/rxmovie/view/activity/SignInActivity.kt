@@ -14,7 +14,7 @@ import com.taskworld.android.rxmovie.presentation.viewaction.SignInViewAction
 import com.taskworld.android.rxmovie.util.TAG
 import fuel.util.build
 import kotlinx.android.synthetic.activity_sign_in.*
-import reactiveandroid.rx.liftObservable
+import reactiveandroid.rx.liftWith
 import reactiveandroid.rx.reduceQuadFirst
 import reactiveandroid.view.click
 import reactiveandroid.view.enabled
@@ -48,9 +48,9 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
 
         bindObservables()
 
-        subscriptions.add(liftObservable(signInButton.click, ::handleSignInButtonClicked))
-        subscriptions.add(liftObservable(clearButton.click, ::handleClearButtonClicked))
-        subscriptions.add(liftObservable(Observable.merge(emailEdit.focusChange, passwordEdit.focusChange), ::checkFocus))
+        subscriptions.add(signInButton.click.liftWith(this, ::handleSignInButtonClicked))
+        subscriptions.add(clearButton.click.liftWith(this, ::handleClearButtonClicked))
+        subscriptions.add(Observable.merge(emailEdit.focusChange, passwordEdit.focusChange).liftWith(this, ::checkFocus))
     }
 
     fun bindObservables() {

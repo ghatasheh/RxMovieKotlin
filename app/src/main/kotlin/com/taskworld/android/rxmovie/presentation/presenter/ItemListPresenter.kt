@@ -14,7 +14,7 @@ import com.taskworld.android.rxmovie.presentation.viewaction.ItemListViewAction
 import com.taskworld.android.rxmovie.util.TAG
 import com.taskworld.android.rxmovie.view.fragment.ItemListFragment
 import reactiveandroid.property.MutablePropertyOf
-import reactiveandroid.rx.liftObservable
+import reactiveandroid.rx.liftWith
 import reactiveandroid.rx.plusAssign
 import reactiveandroid.scheduler.AndroidSchedulers
 import rx.Observable
@@ -43,7 +43,7 @@ class ItemListPresenter(override var view: ItemListViewAction) : ReactivePresent
 
     init {
         becomeActive.subscribe {
-            subscriptions += liftObservable(listViewHolderObservable(), ::updateItems)
+            subscriptions += listViewHolderObservable().liftWith(this, ::updateItems)
         }
 
         becomeInactive.subscribe {
@@ -57,7 +57,7 @@ class ItemListPresenter(override var view: ItemListViewAction) : ReactivePresent
         isLoading = true
 
         pageNumber++
-        subscriptions += liftObservable(listViewHolderObservable(), ::updateItems)
+        subscriptions += listViewHolderObservable().liftWith(this, ::updateItems)
     }
 
     fun listViewHolderObservable(): Observable<List<ItemListViewHolderPresenter>> {

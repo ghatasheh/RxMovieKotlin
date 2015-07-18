@@ -11,6 +11,10 @@ import rx.subscriptions.CompositeSubscription
 
 class PropertyOf<T>(init: T) : Property<T> {
 
+    constructor(init: Property<T>) : this(init.value) {
+
+    }
+
     override val value: T = init
 
     override val observable: Observable<T>
