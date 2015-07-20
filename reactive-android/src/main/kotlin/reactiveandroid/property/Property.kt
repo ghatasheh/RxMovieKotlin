@@ -8,13 +8,16 @@ import rx.Observable
 
 interface Property<T> {
 
-    val value: T
+    public var value: T
+        private set
 
-    val observable: Observable<T>
+    public val observable: Observable<T>
+
 }
 
 interface MutableProperty<T> : Property<T> {
 
-    override var value: T
+    public override var value: T
 
 }
+

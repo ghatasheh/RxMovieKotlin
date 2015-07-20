@@ -5,8 +5,8 @@ import android.text.TextWatcher
 import android.view.KeyEvent
 import android.widget.TextView
 import reactiveandroid.property.MutablePropertyOf
-import reactiveandroid.property.mutablePropertyWith
 import reactiveandroid.rx.Quad
+import reactiveandroid.view.mutablePropertyWith
 import rx.Observable
 
 /**

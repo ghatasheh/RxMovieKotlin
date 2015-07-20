@@ -14,7 +14,9 @@ import com.taskworld.android.rxmovie.presentation.presenter.ItemListPresenter
 import com.taskworld.android.rxmovie.presentation.presenter.holder.ItemListViewHolderPresenter
 import com.taskworld.android.rxmovie.presentation.viewaction.ItemListViewAction
 import com.taskworld.android.rxmovie.presentation.viewaction.holder.ItemListViewHolderViewAction
+import com.taskworld.android.rxmovie.view.activity.MainActivity
 import fuel.util.build
+import kotlinx.android.synthetic.fragment_item_list.itemListProgress
 import kotlinx.android.synthetic.fragment_item_list.itemListRecycler
 import kotlinx.android.synthetic.recycler_item_list.view.itemListBackgroundImage
 import kotlinx.android.synthetic.recycler_item_list.view.itemListTitleText
@@ -22,6 +24,7 @@ import reactiveandroid.rx.liftWith
 import reactiveandroid.rx.plusAssign
 import reactiveandroid.support.v7.widget.scrolled
 import reactiveandroid.view.click
+import reactiveandroid.view.visibility
 import reactiveandroid.widget.text
 import rx.subscriptions.CompositeSubscription
 import kotlin.properties.Delegates
@@ -44,7 +47,7 @@ class ItemListFragment : Fragment(), ItemListViewAction {
         }
     }
 
-    enum class Type(value: Int) {
+    enum class Type(_: Int) {
         Movie(0),
         TV(1)
     }
@@ -100,6 +103,13 @@ class ItemListFragment : Fragment(), ItemListViewAction {
 
     fun bindObservables() {
         subscriptions += presenter.itemCount.observable.liftWith(this, ::notifyAdapter)
+
+        val action = presenter.loadAction
+        subscriptions += itemListProgress.visibility.bind(action.executing.observable.map { if (it) View.VISIBLE else View.GONE })
+        subscriptions += itemListRecycler.visibility.bind(action.executing.observable.map { if (it) View.GONE else View.VISIBLE })
+
+        val moreAction = presenter.loadMoreAction
+        subscriptions += (getActivity() as MainActivity).mainLoadProgress.visibility.bind(moreAction.executing.observable.map { if (it) View.VISIBLE else View.GONE })
     }
 
     override fun onStart() {
@@ -129,6 +139,11 @@ class ItemListFragment : Fragment(), ItemListViewAction {
     fun notifyAdapter(_: Int) {
         adapter.notifyDataSetChanged()
     }
+
+    //================================================================================
+    // ItemListViewAction
+    //================================================================================
+
 
     inner class ItemListAdapter : RecyclerView.Adapter<ItemListViewHolder>() {
 
