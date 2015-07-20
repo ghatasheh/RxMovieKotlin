@@ -17,19 +17,19 @@ class Action<T, U>(conditionEnabled: Property<Boolean>, private val execution: (
 
     constructor(execution: (T) -> Observable<U>) : this(PropertyOf(true), execution)
 
-    private var _executing = MutablePropertyOf(false)
+    private val _executing = MutablePropertyOf(false)
     public val executing: PropertyOf<Boolean> = PropertyOf(_executing)
 
-    private var _enabled = MutablePropertyOf(false)
+    private val _enabled = MutablePropertyOf(false)
     public val enabled: PropertyOf<Boolean> = PropertyOf(_enabled)
 
-    private var subject = PublishSubject.create<Observable<U>>()
-    public var executions: Observable<Observable<U>> = subject
+    private val executionSubject = PublishSubject.create<Observable<U>>()
+    public val executions: Observable<Observable<U>> = executionSubject
 
     public var name: String = ""
 
-    private var output: Observable<U>? by Delegates.observable(null) { meta, oldValue: Observable<U>?, newValue: Observable<U>? ->
-        subject.onNext(newValue)
+    private var output: Observable<U>? by Delegates.observable(null) { _, __: Observable<U>?, newValue: Observable<U>? ->
+        executionSubject.onNext(newValue)
     }
 
     init {
@@ -52,7 +52,8 @@ class Action<T, U>(conditionEnabled: Property<Boolean>, private val execution: (
             }
 
             if (!willExecute) {
-                subscriber.onError(IllegalStateException("$name is not enabled, executing : ${_executing.value}"))
+                val error = IllegalStateException("$name is not enabled, executing : ${_executing.value}")
+                subscriber.onError(error)
                 return@create
             }
 

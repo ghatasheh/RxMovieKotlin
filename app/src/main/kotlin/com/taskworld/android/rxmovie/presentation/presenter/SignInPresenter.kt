@@ -10,6 +10,7 @@ import com.taskworld.android.rxmovie.util.TAG
 import reactiveandroid.property.MutablePropertyOf
 import reactiveandroid.rx.Action
 import reactiveandroid.scheduler.AndroidSchedulers
+import rx.Notification
 import rx.Observable
 
 /**
@@ -43,8 +44,17 @@ class SignInPresenter(override var view: SignInViewAction) : ReactivePresenter()
         }
 
         action.executions.subscribe { o ->
-            o.observeOn(AndroidSchedulers.mainThreadScheduler())
-                    .subscribe({ view.showSignInSuccess() }, { view.showSignInFailure("error") }, { Log.v(TAG, "complete") })
+            o.materialize().filter {
+                it.getKind().equals(Notification.Kind.OnNext) or it.getKind().equals(Notification.Kind.OnError)
+            }.observeOn(AndroidSchedulers.mainThreadScheduler()).subscribe {
+                when (it.getKind()) {
+                    Notification.Kind.OnNext -> {
+                        view.showSignInSuccess()
+                        token.value = it.getValue().requestToken
+                    }
+                    Notification.Kind.OnError -> view.showSignInFailure("Username or Password is incorrect")
+                }
+            }
         }
 
         return action
