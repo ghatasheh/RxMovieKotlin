@@ -51,14 +51,14 @@ public class ItemListViewHolderPresenter(val presentable: ItemListPresentable) :
     val image: PropertyOf<String>
     val title: PropertyOf<CharSequence>
 
-    var click: Observable<View> by Delegates.notNull()
+    var clicks: Observable<View> by Delegates.notNull()
 
     init {
         title = PropertyOf<CharSequence>(presentable.title)
         image = PropertyOf("http://image.tmdb.org/t/p/w500${presentable.image}")
 
         becomeActive.subscribe {
-            click.subscribe { view.navigateToItemDetail(presentable.title) }
+            clicks.subscribe { view.navigateToItemDetail(presentable.title) }
         }
 
     }

@@ -13,8 +13,8 @@ import rx.Observable
 // Properties
 //================================================================================
 
-val CompoundButton.checked: MutablePropertyOf<Boolean>
-    get () {
+public val CompoundButton.checked: MutablePropertyOf<Boolean>
+    get() {
         return mutablePropertyWith({ isChecked() }, { setChecked(it) })
     }
 
@@ -22,12 +22,11 @@ val CompoundButton.checked: MutablePropertyOf<Boolean>
 // Events
 //================================================================================
 
-val CompoundButton.checkedChange: Observable<Pair<CompoundButton, Boolean>>
-    get () {
-        return Observable.create { subscriber ->
-            setOnCheckedChangeListener { compoundButton, isCheck ->
-                subscriber.onNext(compoundButton to isCheck)
-            }
+public fun CompoundButton.checkedChange(): Observable<Pair<CompoundButton, Boolean>> {
+    return Observable.create { subscriber ->
+        setOnCheckedChangeListener { compoundButton, isChecked ->
+            subscriber.onNext(compoundButton to isChecked)
         }
     }
+}
 

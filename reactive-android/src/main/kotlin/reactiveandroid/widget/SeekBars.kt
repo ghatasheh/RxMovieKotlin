@@ -11,15 +11,13 @@ import rx.Observable
 // Events
 //================================================================================
 
-val SeekBar.progressChange: Observable<Triple<SeekBar, Int, Boolean>>
-    get() {
-        return Observable.create { subscriber ->
-
-            onProgressChangedListener.onProgressChanged { seekBar, progress, fromUser ->
-                subscriber.onNext(Triple(seekBar, progress, fromUser))
-            }
+public fun SeekBar.progressChange(): Observable<Triple<SeekBar, Int, Boolean>> {
+    return Observable.create { subscriber ->
+        onProgressChangedListener.onProgressChanged { seekBar, progress, fromUser ->
+            subscriber.onNext(Triple(seekBar, progress, fromUser))
         }
     }
+}
 
 private val SeekBar.onProgressChangedListener: _SeekBar_OnSeekBarChangeListener
     get() {

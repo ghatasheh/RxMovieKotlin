@@ -144,7 +144,6 @@ class ItemListFragment : Fragment(), ItemListViewAction {
     // ItemListViewAction
     //================================================================================
 
-
     inner class ItemListAdapter : RecyclerView.Adapter<ItemListViewHolder>() {
 
         var lastPosition = -1
@@ -196,7 +195,7 @@ class ItemListFragment : Fragment(), ItemListViewAction {
             itemView.itemListTitleText.text.bind(presenter.title)
 
             subscriptions += presenter.image.observable.liftWith(this, ::setBackgroundImageUrl)
-            presenter.click = itemView.click
+            presenter.clicks = itemView.click()
         }
 
         fun unbind() {
