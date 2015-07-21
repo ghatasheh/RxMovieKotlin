@@ -1,6 +1,7 @@
 package reactiveandroid.view
 
 import android.view.DragEvent
+import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import reactiveandroid.property.MutablePropertyOf
@@ -15,105 +16,119 @@ import rx.Observable
 // Properties
 //================================================================================
 
-val View.enabled: MutablePropertyOf<Boolean>
-    get() {
-        return mutablePropertyWith({ isEnabled() }, { setEnabled(it) })
-    }
-
-val View.visibility: MutablePropertyOf<Int>
-    get() {
-        return mutablePropertyWith({ getVisibility() }, { setVisibility(it) })
-    }
-
-val View.activated: MutablePropertyOf<Boolean>
+public val View.activated: MutablePropertyOf<Boolean>
     get() {
         return mutablePropertyWith({ isActivated() }, { setActivated(it) })
     }
 
-val View.clickable: MutablePropertyOf<Boolean>
+public val View.alpha: MutablePropertyOf<Float>
+    get() {
+        return mutablePropertyWith({ getAlpha() }, { setAlpha(it) })
+    }
+
+public val View.backgroundResource: MutablePropertyOf<Int>
+    get() {
+        return mutablePropertyWith({ 0 }, { if (it > 0) setBackgroundResource(it) })
+    }
+
+public val View.clickable: MutablePropertyOf<Boolean>
     get() {
         return mutablePropertyWith({ isClickable() }, { setClickable(it) })
     }
 
-val View.pressed: MutablePropertyOf<Boolean>
+public val View.enabled: MutablePropertyOf<Boolean>
+    get() {
+        return mutablePropertyWith({ isEnabled() }, { setEnabled(it) })
+    }
+
+public val View.focusable: MutablePropertyOf<Boolean>
+    get() {
+        return mutablePropertyWith({ false }, { setFocusable(it) })
+    }
+
+public val View.pressed: MutablePropertyOf<Boolean>
     get() {
         return mutablePropertyWith({ isPressed() }, { setPressed(it) })
     }
 
-val View.selected: MutablePropertyOf<Boolean>
+public val View.selected: MutablePropertyOf<Boolean>
     get() {
         return mutablePropertyWith({ isSelected() }, { setSelected(it) })
     }
 
-val View.alpha: MutablePropertyOf<Float>
+public val View.visibility: MutablePropertyOf<Int>
     get() {
-        return mutablePropertyWith({ getAlpha() }, { setAlpha(it) })
+        return mutablePropertyWith({ getVisibility() }, { setVisibility(it) })
     }
 
 //================================================================================
 // Events
 //================================================================================
 
-val View.click: Observable<View>
-    get () {
-        return Observable.create { subscriber ->
-            if (hasOnClickListeners()) setOnClickListener(null)
+public fun View.click(): Observable<View> {
+    return Observable.create { subscriber ->
+        if (hasOnClickListeners()) setOnClickListener(null)
 
-            setOnClickListener {
-                subscriber.onNext(it)
-            }
+        setOnClickListener {
+            subscriber.onNext(it)
         }
     }
+}
 
-val View.focusChange: Observable<Pair<View, Boolean>>
-    get () {
-        return Observable.create { subscriber ->
-            if (getOnFocusChangeListener() != null) setOnClickListener(null)
-
-            setOnFocusChangeListener { view, hasFocus ->
-                subscriber.onNext(view to hasFocus)
-            }
+public fun View.drag(consumed: Boolean): Observable<Pair<View, DragEvent>> {
+    return Observable.create { subscriber ->
+        setOnDragListener { view, dragEvent ->
+            subscriber.onNext(view to dragEvent)
+            consumed
         }
     }
+}
 
-val View.drag: Observable<Pair<View, DragEvent>>
-    get () {
-        return Observable.create { subscriber ->
+public fun View.focusChange(): Observable<Pair<View, Boolean>> {
+    return Observable.create { subscriber ->
+        if (getOnFocusChangeListener() != null) setOnClickListener(null)
 
-            setOnDragListener { view, dragEvent ->
-                subscriber.onNext(view to dragEvent)
-                true
-            }
-
+        setOnFocusChangeListener { view, hasFocus ->
+            subscriber.onNext(view to hasFocus)
         }
     }
+}
 
-val View.longClick: Observable<View>
-    get () {
-        return Observable.create { subscriber ->
-
-            setOnLongClickListener {
-                subscriber.onNext(it)
-                true
-            }
+public fun View.key(consumed: Boolean): Observable<Triple<View, Int, KeyEvent>> {
+    return Observable.create { subscriber ->
+        setOnKeyListener { view, keyCode, keyEvent ->
+            subscriber.onNext(Triple(view, keyCode, keyEvent))
+            consumed
         }
     }
+}
 
-val View.touch: Observable<Pair<View, MotionEvent>>
-    get () {
-        return Observable.create { subscriber ->
-
-            setOnTouchListener { view, motionEvent ->
-                subscriber.onNext(view to motionEvent)
-                true
-            }
+public fun View.longClick(consumed: Boolean): Observable<View> {
+    return Observable.create { subscriber ->
+        setOnLongClickListener {
+            subscriber.onNext(it)
+            consumed
         }
     }
+}
+
+public fun View.touch(consumed: Boolean): Observable<Pair<View, MotionEvent>> {
+    return Observable.create { subscriber ->
+        setOnTouchListener { view, motionEvent ->
+            subscriber.onNext(view to motionEvent)
+            consumed
+        }
+    }
+}
+
+//================================================================================
+// Util
+//================================================================================
 
 public fun mutablePropertyWith<T>(getter: () -> T, setter: (T) -> Unit): MutablePropertyOf<T> {
     val property = MutablePropertyOf(getter())
-    property.observable.observeOn(AndroidSchedulers.mainThreadScheduler()).subscribe { value ->
-        setter(value)
+    property.observable.observeOn(AndroidSchedulers.mainThreadScheduler()).subscribe {
+        setter(it)
     }
     return property
 }

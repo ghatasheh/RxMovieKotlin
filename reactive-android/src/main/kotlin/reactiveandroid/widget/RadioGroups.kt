@@ -13,8 +13,8 @@ import rx.Observable
 // Properties
 //================================================================================
 
-val RadioGroup.checkId: MutablePropertyOf<Int>
-    get () {
+public val RadioGroup.checkId: MutablePropertyOf<Int>
+    get() {
         return mutablePropertyWith({ getCheckedRadioButtonId() }, { check(it) })
     }
 
@@ -22,13 +22,11 @@ val RadioGroup.checkId: MutablePropertyOf<Int>
 // Events
 //================================================================================
 
-val RadioGroup.checkedChange: Observable<Pair<RadioGroup, Int>>
-    get() {
-        return Observable.create { subscriber ->
-
-            setOnCheckedChangeListener { radioGroup, checkId ->
-                subscriber.onNext(radioGroup to checkId)
-            }
+public fun RadioGroup.checkedChange(): Observable<Pair<RadioGroup, Int>> {
+    return Observable.create { subscriber ->
+        setOnCheckedChangeListener { radioGroup, checkId ->
+            subscriber.onNext(radioGroup to checkId)
         }
     }
+}
 

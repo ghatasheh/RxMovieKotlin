@@ -12,22 +12,22 @@ import reactiveandroid.view.mutablePropertyWith
 // Properties
 //================================================================================
 
-val ProgressBar.progress: MutablePropertyOf<Int>
+public val ProgressBar.progress: MutablePropertyOf<Int>
     get() {
         return mutablePropertyWith({ getProgress() }, { setProgress(it) })
     }
 
-val ProgressBar.secondaryProgress: MutablePropertyOf<Int>
+public val ProgressBar.secondaryProgress: MutablePropertyOf<Int>
     get() {
         return mutablePropertyWith({ getSecondaryProgress() }, { setSecondaryProgress(it) })
     }
 
-val ProgressBar.max: MutablePropertyOf<Int>
+public val ProgressBar.max: MutablePropertyOf<Int>
     get() {
         return mutablePropertyWith({ getMax() }, { setMax(it) })
     }
 
-val ProgressBar.indeterminate: MutablePropertyOf<Boolean>
+public val ProgressBar.indeterminate: MutablePropertyOf<Boolean>
     get() {
         return mutablePropertyWith({ isIndeterminate() }, { setIndeterminate(it) })
     }

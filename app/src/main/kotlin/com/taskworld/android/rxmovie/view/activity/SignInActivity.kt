@@ -50,7 +50,7 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
 
         val action = presenter.requestSignInAction()
         subscriptions += signInGoButton.enabled.bind(action.enabled)
-        subscriptions += signInGoButton.click.subscribe {
+        subscriptions += signInGoButton.click().subscribe {
             action.execute(signInEmailEdit.getText().toString() to signInPasswordEdit.getText().toString())
 
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -59,13 +59,13 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
 
         subscriptions += signInProgress.visibility.bind(action.executing.observable.map { if (it) View.VISIBLE else View.GONE })
 
-        subscriptions += signInClearButton.click.liftWith(this, ::handleClearButtonClicked)
-        subscriptions += Observable.merge(signInEmailEdit.focusChange, signInPasswordEdit.focusChange).liftWith(this, ::checkFocus)
+        subscriptions += signInClearButton.click().liftWith(this, ::handleClearButtonClicked)
+        subscriptions += Observable.merge(signInEmailEdit.focusChange(), signInPasswordEdit.focusChange()).liftWith(this, ::checkFocus)
     }
 
     fun bindObservables() {
-        subscriptions += presenter.email.bind(signInEmailEdit.textChange.reduceQuadFirst())
-        subscriptions += presenter.pass.bind(signInPasswordEdit.textChange.reduceQuadFirst())
+        subscriptions += presenter.email.bind(signInEmailEdit.textChange().reduceQuadFirst())
+        subscriptions += presenter.pass.bind(signInPasswordEdit.textChange().reduceQuadFirst())
 
         subscriptions += clearButtonVisibility.bind(presenter.clearVisible)
 
