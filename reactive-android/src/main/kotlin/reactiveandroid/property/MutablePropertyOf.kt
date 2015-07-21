@@ -17,9 +17,9 @@ class MutablePropertyOf<T>(init: T) : MutableProperty<T> {
 
     private val subject = BehaviorSubject.create(init)
 
-    private val subscriptions = CompositeSubscription()
-
     public override val observable: Observable<T> = subject
+
+    private val subscriptions = CompositeSubscription()
 
     public override var value by Delegates.observable(init) { _, __, newValue ->
         subject.onNext(newValue)

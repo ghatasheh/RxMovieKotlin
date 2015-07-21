@@ -83,7 +83,7 @@ class ItemListFragment : Fragment(), ItemListViewAction {
     fun setUpRecyclerView() {
         itemListRecycler.setAdapter(adapter)
 
-        itemListRecycler.scrolled.subscribe {
+        subscriptions += itemListRecycler.scrolled.subscribe {
 
             val visibleItemCount = itemListRecycler.manager.getChildCount()
             val totalItemCount = itemListRecycler.manager.getItemCount()
@@ -214,5 +214,3 @@ class ItemListFragment : Fragment(), ItemListViewAction {
     }
 
 }
-
-

@@ -1,6 +1,5 @@
 package reactiveandroid.rx
 
-import org.jetbrains.annotations.Mutable
 import reactiveandroid.property.MutablePropertyOf
 import reactiveandroid.property.Property
 import reactiveandroid.property.PropertyOf
