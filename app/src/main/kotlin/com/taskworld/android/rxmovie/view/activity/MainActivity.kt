@@ -11,14 +11,17 @@ import com.taskworld.android.rxmovie.R
 import com.taskworld.android.rxmovie.view.fragment.ItemListFragment
 import com.taskworld.android.rxmovie.view.fragment.NavigationDrawerFragment
 import fuel.util.build
-import kotlinx.android.synthetic.activity_main.mainDrawerLayout
-import kotlinx.android.synthetic.activity_main.mainNavigationDrawer
 import kotlin.properties.Delegates
+
+import kotlinx.android.synthetic.activity_main.*
+import kotlinx.android.synthetic.layout_toolbar.*
 
 public class MainActivity : AppCompatActivity() {
 
     //widgets
     val mainNavigationDrawerFragment: NavigationDrawerFragment by Delegates.lazy { mainNavigationDrawer as NavigationDrawerFragment }
+
+    val mainLoadProgress by Delegates.lazy { loadProgress }
 
     //data
     var titleText: CharSequence by Delegates.notNull()
@@ -29,6 +32,8 @@ public class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
 
         titleText = getTitle()
+
+        setSupportActionBar(toolbar)
 
         setUpDrawerFragment()
     }

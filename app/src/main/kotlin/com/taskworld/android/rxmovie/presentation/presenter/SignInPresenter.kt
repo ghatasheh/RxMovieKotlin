@@ -1,12 +1,16 @@
 package com.taskworld.android.rxmovie.presentation.presenter
 
+import android.util.Log
 import android.view.View
 import com.taskworld.android.domain.SignInInteractor
+import com.taskworld.android.response.ValidateLoginResponse
 import com.taskworld.android.rxmovie.presentation.presenter.base.ReactivePresenter
 import com.taskworld.android.rxmovie.presentation.viewaction.SignInViewAction
-import fuel.util.build
+import com.taskworld.android.rxmovie.util.TAG
 import reactiveandroid.property.MutablePropertyOf
+import reactiveandroid.rx.Action
 import reactiveandroid.scheduler.AndroidSchedulers
+import rx.Notification
 import rx.Observable
 
 /**
@@ -23,26 +27,41 @@ class SignInPresenter(override var view: SignInViewAction) : ReactivePresenter()
 
     val token = MutablePropertyOf<CharSequence>("")
 
-    val signInEnabled = Observable.combineLatest(email.observable, pass.observable) { e, p ->
-        isValidEmailPattern(e) && isValidPassword(p)
-    }
-
     val clearVisible = Observable.combineLatest(email.observable, pass.observable) { e, p ->
         if (e.length() == 0 && p.length() == 0) View.GONE else View.VISIBLE
     }
 
-    fun requestSignIn() {
-        val interactor = build(interactor) {
-            username = email.value.toString()
-            password = pass.value.toString()
+    val validateSignIn: MutablePropertyOf<Boolean> = MutablePropertyOf(false)
+
+    fun requestSignInAction(): Action<Pair<String, String>, ValidateLoginResponse> {
+        validateSignIn.bind(isValidSignIn())
+
+        val action = Action(validateSignIn) { p: Pair<String, String> ->
+            val (user, pass) = p
+            interactor.username = user
+            interactor.password = pass
+            interactor.invoke()
         }
 
-        interactor.invoke().observeOn(AndroidSchedulers.mainThreadScheduler()).subscribe({ response ->
-            view.showSignInSuccess()
-            token.value = response.requestToken
-        }, { error ->
-            view.showSignInFailure("username or password is not valid")
-        })
+        action.executions.subscribe { o ->
+            o.materialize().filter {
+                it.getKind().equals(Notification.Kind.OnNext) or it.getKind().equals(Notification.Kind.OnError)
+            }.observeOn(AndroidSchedulers.mainThreadScheduler()).subscribe {
+                when (it.getKind()) {
+                    Notification.Kind.OnNext -> {
+                        view.showSignInSuccess()
+                        token.value = it.getValue().requestToken
+                    }
+                    Notification.Kind.OnError -> view.showSignInFailure("Username or Password is incorrect")
+                }
+            }
+        }
+
+        return action
+    }
+
+    fun isValidSignIn() = Observable.combineLatest(email.observable, pass.observable) { e, p ->
+        isValidEmailPattern(e) && isValidPassword(p)
     }
 
     fun isValidEmailPattern(text: CharSequence) =

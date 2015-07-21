@@ -1,7 +1,9 @@
 package reactiveandroid.property
 
-import android.util.Log
+import reactiveandroid.rx.plusAssign
+import reactiveandroid.scheduler.AndroidSchedulers
 import rx.Observable
+import rx.Scheduler
 import rx.Subscription
 import rx.subjects.BehaviorSubject
 import rx.subscriptions.CompositeSubscription
@@ -13,50 +15,38 @@ import kotlin.properties.Delegates
 
 class MutablePropertyOf<T>(init: T) : MutableProperty<T> {
 
-    override var value by Delegates.observable(init) { _, __, newValue ->
+    private val subject = BehaviorSubject.create(init)
+
+    public override val observable: Observable<T> = subject
+
+    private val subscriptions = CompositeSubscription()
+
+    public override var value by Delegates.observable(init) { _, __, newValue ->
         subject.onNext(newValue)
     }
 
-    override val observable: Observable<T>
-        get() {
-            return subject
-        }
-
-    private val subject = BehaviorSubject.create(init)
-
-    fun bind(observable: Observable<T>): Subscription {
-        val subscription = CompositeSubscription()
-
-        subscription.add(observable.subscribe({ value ->
-            this.value = value
+    public fun bind(observable: Observable<T>): Subscription {
+        subscriptions += observable.subscribe({
+            value = it
         }, {
-            //do nothing for error
+            subscriptions.unsubscribe()
         }, {
-            subscription.unsubscribe()
-        }))
-
-        return subscription
+            subscriptions.unsubscribe()
+        })
+        return subscriptions
     }
 
-    fun bind(property: Property<T>): Subscription {
-        val subscription = CompositeSubscription()
-        subscription.add(property.observable.subscribe ({ value ->
-            this.value = value
+    public fun bind(property: Property<T>): Subscription {
+        subscriptions += property.observable.subscribe({
+            value = it
         }, {
-            //do nothing for error
+            subscriptions.unsubscribe()
         }, {
-            subscription.unsubscribe()
-        }))
-        return subscription
+            subscriptions.unsubscribe()
+        })
+        return subscriptions
     }
 
 }
 
-public fun mutablePropertyWith<T>(getter: () -> T, setter: (T) -> Unit): MutablePropertyOf<T> {
-    val property = MutablePropertyOf(getter())
-    property.observable.subscribe { value ->
-        setter(value)
-    }
-    return property
-}
 

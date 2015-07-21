@@ -2,7 +2,7 @@ package reactiveandroid.widget
 
 import android.widget.ProgressBar
 import reactiveandroid.property.MutablePropertyOf
-import reactiveandroid.property.mutablePropertyWith
+import reactiveandroid.view.mutablePropertyWith
 
 /**
  * Created by Kittinun Vantasin on 7/16/15.

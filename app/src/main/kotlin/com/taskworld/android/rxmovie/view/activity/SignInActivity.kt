@@ -15,14 +15,15 @@ import com.taskworld.android.rxmovie.util.TAG
 import fuel.util.build
 import kotlinx.android.synthetic.activity_sign_in.*
 import reactiveandroid.rx.liftWith
+import reactiveandroid.rx.plusAssign
 import reactiveandroid.rx.reduceQuadFirst
+import reactiveandroid.scheduler.AndroidSchedulers
 import reactiveandroid.view.click
 import reactiveandroid.view.enabled
 import reactiveandroid.view.focusChange
 import reactiveandroid.view.visibility
 import reactiveandroid.widget.text
 import reactiveandroid.widget.textChange
-import reactiveandroid.widget.textResource
 import rx.Observable
 import rx.subscriptions.CompositeSubscription
 import kotlin.properties.Delegates
@@ -36,8 +37,7 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
     //presenter
     val presenter = SignInPresenter(this)
 
-    val signInButtonEnabled by Delegates.lazy { signInButton.enabled }
-    val clearButtonVisibility by Delegates.lazy { clearButton.visibility }
+    val clearButtonVisibility by Delegates.lazy { signInClearButton.visibility }
 
     val subscriptions = CompositeSubscription()
 
@@ -48,31 +48,33 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
 
         bindObservables()
 
-        subscriptions.add(signInButton.click.liftWith(this, ::handleSignInButtonClicked))
-        subscriptions.add(clearButton.click.liftWith(this, ::handleClearButtonClicked))
-        subscriptions.add(Observable.merge(emailEdit.focusChange, passwordEdit.focusChange).liftWith(this, ::checkFocus))
+        val action = presenter.requestSignInAction()
+        subscriptions += signInGoButton.enabled.bind(action.enabled)
+        subscriptions += signInGoButton.click.subscribe {
+            action.execute(signInEmailEdit.getText().toString() to signInPasswordEdit.getText().toString())
+
+            val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0)
+        }
+
+        subscriptions += signInProgress.visibility.bind(action.executing.observable.map { if (it) View.VISIBLE else View.GONE })
+
+        subscriptions += signInClearButton.click.liftWith(this, ::handleClearButtonClicked)
+        subscriptions += Observable.merge(signInEmailEdit.focusChange, signInPasswordEdit.focusChange).liftWith(this, ::checkFocus)
     }
 
     fun bindObservables() {
-        subscriptions.add(presenter.email.bind(emailEdit.textChange.reduceQuadFirst()))
-        subscriptions.add(presenter.pass.bind(passwordEdit.textChange.reduceQuadFirst()))
+        subscriptions += presenter.email.bind(signInEmailEdit.textChange.reduceQuadFirst())
+        subscriptions += presenter.pass.bind(signInPasswordEdit.textChange.reduceQuadFirst())
 
-        subscriptions.add(signInButtonEnabled.bind(presenter.signInEnabled))
-        subscriptions.add(clearButtonVisibility.bind(presenter.clearVisible))
+        subscriptions += clearButtonVisibility.bind(presenter.clearVisible)
 
-        subscriptions.add(tokenText.text.bind(presenter.token))
-    }
-
-    fun handleSignInButtonClicked(_: View) {
-        presenter.requestSignIn()
-
-        val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0)
+        subscriptions += signInTokenText.text.bind(presenter.token)
     }
 
     fun handleClearButtonClicked(_: View) {
-        emailEdit.setText("")
-        passwordEdit.setText("")
+        signInEmailEdit.setText("")
+        signInPasswordEdit.setText("")
     }
 
     fun checkFocus(pair: Pair<View, Boolean>) {

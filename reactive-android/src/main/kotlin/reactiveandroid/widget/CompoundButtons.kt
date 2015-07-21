@@ -2,7 +2,7 @@ package reactiveandroid.widget
 
 import android.widget.CompoundButton
 import reactiveandroid.property.MutablePropertyOf
-import reactiveandroid.property.mutablePropertyWith
+import reactiveandroid.view.mutablePropertyWith
 import rx.Observable
 
 /**

@@ -1,11 +1,10 @@
 package reactiveandroid.view
 
-import android.util.Log
 import android.view.DragEvent
 import android.view.MotionEvent
 import android.view.View
 import reactiveandroid.property.MutablePropertyOf
-import reactiveandroid.property.mutablePropertyWith
+import reactiveandroid.scheduler.AndroidSchedulers
 import rx.Observable
 
 /**
@@ -110,3 +109,11 @@ val View.touch: Observable<Pair<View, MotionEvent>>
             }
         }
     }
+
+public fun mutablePropertyWith<T>(getter: () -> T, setter: (T) -> Unit): MutablePropertyOf<T> {
+    val property = MutablePropertyOf(getter())
+    property.observable.observeOn(AndroidSchedulers.mainThreadScheduler()).subscribe { value ->
+        setter(value)
+    }
+    return property
+}

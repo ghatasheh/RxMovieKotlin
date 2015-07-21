@@ -24,11 +24,11 @@
             android:textStyle="bold"/>
 
         <EditText
-            android:id="@+id/emailEdit"
+            android:id="@+id/signInEmailEdit"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress"
-            android:minWidth="250dip"
+            android:minWidth="250dp"
             android:scrollHorizontally="true"
             android:singleLine="true"/>
 
@@ -42,17 +42,28 @@
             android:textStyle="bold"/>
 
         <EditText
-            android:id="@+id/passwordEdit"
-            android:layout_width="fill_parent"
+            android:id="@+id/signInPasswordEdit"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="textPassword"
-            android:minWidth="250dip"
+            android:minWidth="250dp"
             android:scrollHorizontally="true"
             android:singleLine="true"/>
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="20dp"/>
+            android:layout_height="10dp"/>
+
+        <ProgressBar
+            android:id="@+id/signInProgress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal" />
+
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="10dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -60,14 +71,14 @@
             android:orientation="horizontal" >
 
             <Button
-                android:id="@+id/signInButton"
+                android:id="@+id/signInGoButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:text="OK"/>
 
             <Button
-                android:id="@+id/clearButton"
+                android:id="@+id/signInClearButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -80,7 +91,7 @@
             android:layout_height="10dp"/>
 
         <TextView
-            android:id="@+id/tokenText"
+            android:id="@+id/signInTokenText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 

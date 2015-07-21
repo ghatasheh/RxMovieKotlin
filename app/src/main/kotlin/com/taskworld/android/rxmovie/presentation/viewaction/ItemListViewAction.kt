@@ -5,4 +5,5 @@ package com.taskworld.android.rxmovie.presentation.viewaction
  */
 
 interface ItemListViewAction {
+
 }
