@@ -1,17 +1,17 @@
 package com.taskworld.android.rxmovie.presentation.presenter
 
-import android.util.Log
 import android.view.View
 import com.taskworld.android.domain.SignInInteractor
 import com.taskworld.android.response.ValidateLoginResponse
 import com.taskworld.android.rxmovie.presentation.presenter.base.ReactivePresenter
 import com.taskworld.android.rxmovie.presentation.viewaction.SignInViewAction
-import com.taskworld.android.rxmovie.util.TAG
 import reactiveandroid.property.MutablePropertyOf
 import reactiveandroid.rx.Action
+import reactiveandroid.rx.plusAssign
 import reactiveandroid.scheduler.AndroidSchedulers
 import rx.Notification
 import rx.Observable
+import rx.subscriptions.CompositeSubscription
 
 /**
  * Created by Kittinun Vantasin on 7/12/15.
@@ -33,8 +33,16 @@ class SignInPresenter(override var view: SignInViewAction) : ReactivePresenter()
 
     val validateSignIn: MutablePropertyOf<Boolean> = MutablePropertyOf(false)
 
+    val subscriptions = CompositeSubscription()
+
+    init {
+        becomeInactive.subscribe {
+            subscriptions.unsubscribe()
+        }
+    }
+
     fun requestSignInAction(): Action<Pair<String, String>, ValidateLoginResponse> {
-        validateSignIn.bind(isValidSignIn())
+        subscriptions += validateSignIn.bind(isValidSignIn())
 
         val action = Action(validateSignIn) { p: Pair<String, String> ->
             val (user, pass) = p
@@ -43,7 +51,7 @@ class SignInPresenter(override var view: SignInViewAction) : ReactivePresenter()
             interactor.invoke()
         }
 
-        action.executions.subscribe { o ->
+        subscriptions += action.executions.subscribe { o ->
             o.materialize().filter {
                 it.getKind().equals(Notification.Kind.OnNext) or it.getKind().equals(Notification.Kind.OnError)
             }.observeOn(AndroidSchedulers.mainThreadScheduler()).subscribe {

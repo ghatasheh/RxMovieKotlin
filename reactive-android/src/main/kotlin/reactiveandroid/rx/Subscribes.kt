@@ -19,6 +19,7 @@ public fun <T, U> Observable<T>.liftWith(u: U,
         u.next(it)
     }, {
         if (error != null) u.error(it)
+        subscriptions.unsubscribe()
     }, {
         if (complete != null) u.complete()
         subscriptions.unsubscribe()
