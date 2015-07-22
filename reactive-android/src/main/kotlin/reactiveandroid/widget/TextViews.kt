@@ -28,6 +28,11 @@ public val TextView.textResource: MutablePropertyOf<Int>
         return mutablePropertyWith({ 0 }, { if (it > 0) setText(it) })
     }
 
+public val TextView.textColor: MutablePropertyOf<Int>
+    get() {
+        return mutablePropertyWith({ 0 }, { if (it > 0) setTextColor(it) })
+    }
+
 //================================================================================
 // Events
 //================================================================================

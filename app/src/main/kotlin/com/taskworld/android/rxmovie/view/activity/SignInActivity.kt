@@ -60,9 +60,9 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
         subscriptions += signInClearButton.click().liftWith(this, ::handleClearButtonClicked)
         subscriptions += Observable.merge<Boolean>(signInEmailEdit.focusChange().tupleSecond(), signInPasswordEdit.focusChange().tupleSecond()).liftWith(this, ::checkFocus)
 
-        signInEmailEdit.focusChange().subscribe({ view, isFocus ->
-            Log.e(TAG, isFocus.toString())
-        })
+        signInEmailEdit.focusChange().subscribe { v, b ->
+            Log.e(TAG, b.toString())
+        }
     }
 
     fun bindObservables() {

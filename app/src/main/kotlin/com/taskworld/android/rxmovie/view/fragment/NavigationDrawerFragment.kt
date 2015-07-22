@@ -1,21 +1,24 @@
 package com.taskworld.android.rxmovie.view.fragment
 
-import android.app.Activity
-import android.content.res.Configuration
 import android.os.Bundle
 import android.support.v4.app.Fragment
-import android.support.v4.view.GravityCompat
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBar
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
-import android.view.*
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import com.taskworld.android.rxmovie.R
+import com.taskworld.android.rxmovie.util.TAG
 import kotlinx.android.synthetic.fragment_navigation_drawer.view.navigationDrawerListView
 import reactiveandroid.rx.liftWith
+import reactiveandroid.rx.subscribe
 import reactiveandroid.rx.tupleThird
 import reactiveandroid.widget.itemClick
+import reactiveandroid.widget.itemSelected
 import kotlin.properties.Delegates
 
 public class NavigationDrawerFragment : Fragment() {
@@ -57,7 +60,6 @@ public class NavigationDrawerFragment : Fragment() {
                 listOf(getString(R.string.title_section1), getString(R.string.title_section2), getString(R.string.title_section3))))
 
         getView().navigationDrawerListView.itemClick().tupleThird().liftWith(this, ::selectItem)
-
         getView().navigationDrawerListView.setItemChecked(mCurrentSelectedPosition, true)
 
         // Select either the default item (0) or the last selected item.

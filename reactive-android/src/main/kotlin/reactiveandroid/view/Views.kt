@@ -28,6 +28,11 @@ public val View.alpha: MutablePropertyOf<Float>
         return mutablePropertyWith({ getAlpha() }, { setAlpha(it) })
     }
 
+public val View.backgroundColor: MutablePropertyOf<Int>
+    get() {
+        return mutablePropertyWith({ 0 }, { if (it > 0) setBackgroundColor(it) })
+    }
+
 public val View.backgroundResource: MutablePropertyOf<Int>
     get() {
         return mutablePropertyWith({ 0 }, { if (it > 0) setBackgroundResource(it) })
