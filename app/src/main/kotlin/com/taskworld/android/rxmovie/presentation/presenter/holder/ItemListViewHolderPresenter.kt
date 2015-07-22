@@ -1,6 +1,7 @@
 package com.taskworld.android.rxmovie.presentation.presenter.holder
 
 import android.view.View
+import com.taskworld.android.model.BaseModel
 import com.taskworld.android.model.Movie
 import com.taskworld.android.model.TV
 import com.taskworld.android.rxmovie.presentation.presenter.Presenter
@@ -21,28 +22,28 @@ interface ItemListPresentable {
 
 }
 
-val Movie.itemListPresentable: ItemListPresentable
+val BaseModel.itemListPresentable: ItemListPresentable
     get () {
-        val movie = this
-        return object : ItemListPresentable {
+        return when (this) {
+            is Movie -> {
+                val movie = this
+                object : ItemListPresentable {
+                    override val title = movie.title
+                    override val image = movie.backdropPath
+                }
+            }
+            is TV -> {
+                val tv = this
+                object : ItemListPresentable {
 
-            override val title = movie.title
-            override val image = movie.backdropPath
+                    override val title = tv.name
+                    override val image = tv.backdropPath
 
+                }
+            }
+            else -> throw RuntimeException()
         }
     }
-
-val TV.itemListPresentable: ItemListPresentable
-    get () {
-        val tv = this
-        return object : ItemListPresentable {
-
-            override val title = tv.name
-            override val image = tv.backdropPath
-
-        }
-    }
-
 
 public class ItemListViewHolderPresenter(val presentable: ItemListPresentable) : ReactivePresenter(), Presenter<ItemListViewHolderViewAction> {
 

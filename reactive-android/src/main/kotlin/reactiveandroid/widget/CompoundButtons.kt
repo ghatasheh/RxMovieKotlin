@@ -2,6 +2,7 @@ package reactiveandroid.widget
 
 import android.widget.CompoundButton
 import reactiveandroid.property.MutablePropertyOf
+import reactiveandroid.rx.Tuple2
 import reactiveandroid.view.mutablePropertyWith
 import rx.Observable
 
@@ -22,10 +23,10 @@ public val CompoundButton.checked: MutablePropertyOf<Boolean>
 // Events
 //================================================================================
 
-public fun CompoundButton.checkedChange(): Observable<Pair<CompoundButton, Boolean>> {
+public fun CompoundButton.checkedChange(): Observable<Tuple2<CompoundButton, Boolean>> {
     return Observable.create { subscriber ->
         setOnCheckedChangeListener { compoundButton, isChecked ->
-            subscriber.onNext(compoundButton to isChecked)
+            subscriber.onNext(Tuple2(compoundButton, isChecked))
         }
     }
 }

@@ -13,6 +13,9 @@ import android.view.*
 import android.widget.ArrayAdapter
 import com.taskworld.android.rxmovie.R
 import kotlinx.android.synthetic.fragment_navigation_drawer.view.navigationDrawerListView
+import reactiveandroid.rx.liftWith
+import reactiveandroid.rx.tupleThird
+import reactiveandroid.widget.itemClick
 import kotlin.properties.Delegates
 
 public class NavigationDrawerFragment : Fragment() {
@@ -53,9 +56,7 @@ public class NavigationDrawerFragment : Fragment() {
                 android.R.id.text1,
                 listOf(getString(R.string.title_section1), getString(R.string.title_section2), getString(R.string.title_section3))))
 
-        getView().navigationDrawerListView.setOnItemClickListener { adapterView, view, position, id ->
-            selectItem(position)
-        }
+        getView().navigationDrawerListView.itemClick().tupleThird().liftWith(this, ::selectItem)
 
         getView().navigationDrawerListView.setItemChecked(mCurrentSelectedPosition, true)
 

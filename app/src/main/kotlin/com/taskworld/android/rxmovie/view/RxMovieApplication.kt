@@ -17,7 +17,6 @@ class RxMovieApplication : Application() {
     var refWatcher: RefWatcher by Delegates.notNull()
 
     companion object {
-
         fun refWatcher(context: Context): RefWatcher {
             val app = context.getApplicationContext() as RxMovieApplication
             return app.refWatcher

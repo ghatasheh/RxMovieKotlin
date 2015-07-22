@@ -5,7 +5,8 @@ import android.text.TextWatcher
 import android.view.KeyEvent
 import android.widget.TextView
 import reactiveandroid.property.MutablePropertyOf
-import reactiveandroid.rx.Quad
+import reactiveandroid.rx.Tuple3
+import reactiveandroid.rx.Tuple4
 import reactiveandroid.view.mutablePropertyWith
 import rx.Observable
 
@@ -31,19 +32,19 @@ public val TextView.textResource: MutablePropertyOf<Int>
 // Events
 //================================================================================
 
-public fun TextView.editorActions(consumed: Boolean): Observable<Triple<TextView, Int, KeyEvent>> {
+public fun TextView.editorActions(consumed: Boolean): Observable<Tuple3<TextView, Int, KeyEvent>> {
     return Observable.create { subscriber ->
         setOnEditorActionListener { textView, actionId, keyEvent ->
-            subscriber.onNext(Triple(textView, actionId, keyEvent))
+            subscriber.onNext(Tuple3(textView, actionId, keyEvent))
             consumed
         }
     }
 }
 
-public fun TextView.textChange(): Observable<Quad<CharSequence, Int, Int, Int>> {
+public fun TextView.textChange(): Observable<Tuple4<CharSequence, Int, Int, Int>> {
     return Observable.create { subscriber ->
         textWatcher.onTextChanged { charSequence, start, before, count ->
-            subscriber.onNext(Quad(charSequence, start, before, count))
+            subscriber.onNext(Tuple4(charSequence, start, before, count))
         }
     }
 }

@@ -14,9 +14,7 @@ import com.taskworld.android.rxmovie.presentation.viewaction.SignInViewAction
 import com.taskworld.android.rxmovie.util.TAG
 import fuel.util.build
 import kotlinx.android.synthetic.activity_sign_in.*
-import reactiveandroid.rx.liftWith
-import reactiveandroid.rx.plusAssign
-import reactiveandroid.rx.reduceQuadFirst
+import reactiveandroid.rx.*
 import reactiveandroid.scheduler.AndroidSchedulers
 import reactiveandroid.view.click
 import reactiveandroid.view.enabled
@@ -60,12 +58,16 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
         subscriptions += signInProgress.visibility.bind(action.executing.observable.map { if (it) View.VISIBLE else View.GONE })
 
         subscriptions += signInClearButton.click().liftWith(this, ::handleClearButtonClicked)
-        subscriptions += Observable.merge(signInEmailEdit.focusChange(), signInPasswordEdit.focusChange()).liftWith(this, ::checkFocus)
+        subscriptions += Observable.merge<Boolean>(signInEmailEdit.focusChange().tupleSecond(), signInPasswordEdit.focusChange().tupleSecond()).liftWith(this, ::checkFocus)
+
+        signInEmailEdit.focusChange().subscribe({ view, isFocus ->
+            Log.e(TAG, isFocus.toString())
+        })
     }
 
     fun bindObservables() {
-        subscriptions += presenter.email.bind(signInEmailEdit.textChange().reduceQuadFirst())
-        subscriptions += presenter.pass.bind(signInPasswordEdit.textChange().reduceQuadFirst())
+        subscriptions += presenter.email.bind(signInEmailEdit.textChange().tupleFirst())
+        subscriptions += presenter.pass.bind(signInPasswordEdit.textChange().tupleFirst())
 
         subscriptions += clearButtonVisibility.bind(presenter.clearVisible)
 
@@ -77,9 +79,8 @@ class SignInActivity : AppCompatActivity(), SignInViewAction {
         signInPasswordEdit.setText("")
     }
 
-    fun checkFocus(pair: Pair<View, Boolean>) {
-        val (view, focus) = pair
-        Log.e(TAG, "view: $view, focus: $focus")
+    fun checkFocus(isFocus: Boolean) {
+        Log.e(TAG, "focus: $isFocus")
     }
 
     override fun onStart() {

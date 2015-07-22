@@ -5,6 +5,8 @@ import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
 import reactiveandroid.property.MutablePropertyOf
+import reactiveandroid.rx.Tuple2
+import reactiveandroid.rx.Tuple3
 import reactiveandroid.scheduler.AndroidSchedulers
 import rx.Observable
 
@@ -75,29 +77,29 @@ public fun View.click(): Observable<View> {
     }
 }
 
-public fun View.drag(consumed: Boolean): Observable<Pair<View, DragEvent>> {
+public fun View.drag(consumed: Boolean): Observable<Tuple2<View, DragEvent>> {
     return Observable.create { subscriber ->
         setOnDragListener { view, dragEvent ->
-            subscriber.onNext(view to dragEvent)
+            subscriber.onNext(Tuple2(view, dragEvent))
             consumed
         }
     }
 }
 
-public fun View.focusChange(): Observable<Pair<View, Boolean>> {
+public fun View.focusChange(): Observable<Tuple2<View, Boolean>> {
     return Observable.create { subscriber ->
         if (getOnFocusChangeListener() != null) setOnClickListener(null)
 
         setOnFocusChangeListener { view, hasFocus ->
-            subscriber.onNext(view to hasFocus)
+            subscriber.onNext(Tuple2(view, hasFocus))
         }
     }
 }
 
-public fun View.key(consumed: Boolean): Observable<Triple<View, Int, KeyEvent>> {
+public fun View.key(consumed: Boolean): Observable<Tuple3<View, Int, KeyEvent>> {
     return Observable.create { subscriber ->
         setOnKeyListener { view, keyCode, keyEvent ->
-            subscriber.onNext(Triple(view, keyCode, keyEvent))
+            subscriber.onNext(Tuple3(view, keyCode, keyEvent))
             consumed
         }
     }
@@ -112,10 +114,10 @@ public fun View.longClick(consumed: Boolean): Observable<View> {
     }
 }
 
-public fun View.touch(consumed: Boolean): Observable<Pair<View, MotionEvent>> {
+public fun View.touch(consumed: Boolean): Observable<Tuple2<View, MotionEvent>> {
     return Observable.create { subscriber ->
         setOnTouchListener { view, motionEvent ->
-            subscriber.onNext(view to motionEvent)
+            subscriber.onNext(Tuple2(view, motionEvent))
             consumed
         }
     }
@@ -125,7 +127,7 @@ public fun View.touch(consumed: Boolean): Observable<Pair<View, MotionEvent>> {
 // Util
 //================================================================================
 
-public fun mutablePropertyWith<T>(getter: () -> T, setter: (T) -> Unit): MutablePropertyOf<T> {
+public fun <T> mutablePropertyWith(getter: () -> T, setter: (T) -> Unit): MutablePropertyOf<T> {
     val property = MutablePropertyOf(getter())
     property.observable.observeOn(AndroidSchedulers.mainThreadScheduler()).subscribe {
         setter(it)

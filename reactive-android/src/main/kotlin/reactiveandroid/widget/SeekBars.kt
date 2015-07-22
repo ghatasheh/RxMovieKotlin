@@ -1,6 +1,7 @@
 package reactiveandroid.widget
 
 import android.widget.SeekBar
+import reactiveandroid.rx.Tuple3
 import rx.Observable
 
 /**
@@ -11,10 +12,10 @@ import rx.Observable
 // Events
 //================================================================================
 
-public fun SeekBar.progressChange(): Observable<Triple<SeekBar, Int, Boolean>> {
+public fun SeekBar.progressChange(): Observable<Tuple3<SeekBar, Int, Boolean>> {
     return Observable.create { subscriber ->
         onProgressChangedListener.onProgressChanged { seekBar, progress, fromUser ->
-            subscriber.onNext(Triple(seekBar, progress, fromUser))
+            subscriber.onNext(Tuple3(seekBar, progress, fromUser))
         }
     }
 }

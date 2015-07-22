@@ -3,12 +3,8 @@ package com.taskworld.android.rxmovie.presentation.presenter
 import android.util.Log
 import com.taskworld.android.domain.MovieListInteractor
 import com.taskworld.android.domain.TVListInteractor
-import com.taskworld.android.model.Movie
-import com.taskworld.android.model.TV
 import com.taskworld.android.rxmovie.presentation.presenter.base.ReactivePresenter
-import com.taskworld.android.rxmovie.presentation.presenter.holder.ItemListPresentable
 import com.taskworld.android.rxmovie.presentation.presenter.holder.ItemListViewHolderPresenter
-import com.taskworld.android.rxmovie.presentation.presenter.holder.itemListPresentable
 import com.taskworld.android.rxmovie.presentation.viewaction.ItemListViewAction
 import com.taskworld.android.rxmovie.util.TAG
 import com.taskworld.android.rxmovie.view.fragment.ItemListFragment
@@ -19,6 +15,7 @@ import reactiveandroid.rx.plusAssign
 import reactiveandroid.scheduler.AndroidSchedulers
 import rx.subscriptions.CompositeSubscription
 import kotlin.properties.Delegates
+import com.taskworld.android.rxmovie.presentation.presenter.holder.itemListPresentable
 
 /**
  * Created by Kittinun Vantasin on 7/15/15.
@@ -74,20 +71,12 @@ class ItemListPresenter(override var view: ItemListViewAction) : ReactivePresent
             interactor.page = number
             interactor.invoke().map { list ->
                 list.map {
-                    ItemListViewHolderPresenter(constructItemListPresentable(it))
+                    ItemListViewHolderPresenter(it.itemListPresentable)
                 }
             }
         }
 
         return action
-    }
-
-    fun constructItemListPresentable(model: Any): ItemListPresentable {
-        return when (model) {
-            is TV -> model.itemListPresentable
-            is Movie -> model.itemListPresentable
-            else -> throw RuntimeException()
-        }
     }
 
     fun updateItems(presenters: List<ItemListViewHolderPresenter>) {
